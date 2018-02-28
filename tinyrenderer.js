@@ -6,7 +6,7 @@ ctx = canvas.getContext('2d');
 var test_image = new TGA();
 
 
-test_image.open( "images/test.tga", function(data){
+test_image.open( "images/african_head_diffuse.tga", function(data){
 	var imageData = ctx.createImageData(test_image.header.width, test_image.header.height);
 
 	canvas.width = test_image.header.width;
