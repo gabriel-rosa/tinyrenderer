@@ -74,8 +74,8 @@ render_line(new Vector2(80, 40), new Vector2(13, 20), 'red');
 var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {
 	clear_canvas('black');
-	
-	for (var i = 0; i < test_model.faces.length; ++i) {
+	//test_model.faces.length
+	for (var i = 0; i < 10; ++i) {
 		var face = test_model.faces[i];
 		
 		var v0 = test_model.vertices[ face.vertex_inds.x ];
