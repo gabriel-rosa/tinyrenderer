@@ -36,21 +36,27 @@ Model.prototype.parse = function(raw_text) {
 		if (line.length != 4)
 			continue;
 		
-		for (var j = 1; j < 4; ++j)
-			line[j] = parseFloat(line[j]);
-
 		switch (line[0]) {
 			case 'v':
+				for (var j = 1; j < 4; ++j)
+					line[j] = parseFloat(line[j]);
+				
 				var vertex = new Vector3(line[1], line[2], line[3]);
 				vertices.push(vertex);
 				break;
 
 			case 'vt':
+				for (var j = 1; j < 4; ++j)
+					line[j] = parseFloat(line[j]);
+				
 				var vertex_texture = new Vector3(line[1], line[2], line[3]);
 				vertices_texture.push(vertex_texture);
 				break;
 
 			case 'vn':
+				for (var j = 1; j < 4; ++j)
+					line[j] = parseFloat(line[j]);
+				
 				var vertex_normal = new Vector3(line[1], line[2], line[3]);
 				vertices_normal.push(vertex_normal);
 				break;
@@ -59,8 +65,17 @@ Model.prototype.parse = function(raw_text) {
 				var param1 = line[1].split('/');
 				var param2 = line[2].split('/');
 				var param3 = line[3].split('/');
-
+				
+				for (var j = 1; j < param1.length; ++j) {
+					param1[j] = parseFloat(param1[j]);
+					param2[j] = parseFloat(param2[j]);
+					param3[j] = parseFloat(param3[j]);
+				}
+				
 				if (param1.length == 1) {
+					for (var j = 1; j < 4; ++j)
+						line[j] = parseFloat(line[j]);
+					
 					var v = new Vector3(line[1], line[2], line[3]);
 					var f = new Face(v, 0, 0);
 					faces.push(f);
@@ -72,7 +87,7 @@ Model.prototype.parse = function(raw_text) {
 				} else if (param1.length == 3) {
 					var v = new Vector3(param1[0], param2[0], param3[0]);
 					var vt = 0;
-					if (param1[1] != '')
+					if (!isNaN(param1[1]))
 						var vt = new Vector3(param1[1], param2[1], param3[1]);
 					var vn = new Vector3(param1[2], param2[2], param3[2]);
 					var f = new Face(v, vt, vn);
