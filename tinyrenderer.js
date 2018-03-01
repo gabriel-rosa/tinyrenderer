@@ -62,7 +62,7 @@ render_line(new Vector2(20, 13), new Vector2(40, 80), 'red');
 render_line(new Vector2(80, 40), new Vector2(13, 20), 'red'); 
 
 var test_model = new Model();
-test.model.open("models/african_head.obj", function(data) {
+test_model.open("models/african_head.obj", function(data) {
 	console.log("Model loaded!");
 });
 
