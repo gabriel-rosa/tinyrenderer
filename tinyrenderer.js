@@ -52,18 +52,36 @@ function render_line(p1, p2, color) {
 	}
 }
 
-canvas.width = 100;
-canvas.height = 100;
+canvas.width = 800;
+canvas.height = 800;
 
 clear_canvas('black');
 
+/*
 render_line(new Vector2(13, 20), new Vector2(80, 40), 'white'); 
 render_line(new Vector2(20, 13), new Vector2(40, 80), 'red'); 
 render_line(new Vector2(80, 40), new Vector2(13, 20), 'red'); 
+*/
 
 var test_model = new Model();
-test_model.open("models/african_head.obj", function(data) {
-	console.log("Model loaded!");
+test_model.open("models/african_head.obj", function(data) 
+	for (var i = 0; i < test_model.faces.length; ++i) {
+		var face = test_model.faces[i];
+		
+		var v0 = test_model.vertices[ face.vertex_inds[0] ];
+		var v1 = test_model.vertices[ face.vertex_inds[1] ];
+		var v2 = test_model.vertices[ face.vertex_inds[2] ];
+		
+		v0.x = (v0.x+1)*canvas.width/2;
+		v1.x = (v1.x+1)*canvas.width/2;
+		v2.x = (v2.x+1)*canvas.width/2;
+		v0.y = (v0.y+1)*canvas.height/2;
+		v1.y = (v1.y+1)*canvas.height/2;
+		v2.y = (v2.y+1)*canvas.height/2;
+		render_line(v0, v1, 'white');
+		render_line(v1, v2, 'white');
+		render_line(v2, v0, 'white');
+	}
 });
 
 /*var test_image = new TGA();
