@@ -77,8 +77,8 @@ function render_triangle(v0, v1, v2, color) {
 	ctx.stroke();
 }
 
-canvas.width = 800;
-canvas.height = 800;
+canvas.width = 100;
+canvas.height = 100;
 
 clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
