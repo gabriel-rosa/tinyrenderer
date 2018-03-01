@@ -67,14 +67,14 @@ Model.prototype.parse = function(raw_text) {
 				var param3 = line[3].split('/');
 				
 				for (var j = 1; j < param1.length; ++j) {
-					param1[j] = parseFloat(param1[j]);
-					param2[j] = parseFloat(param2[j]);
-					param3[j] = parseFloat(param3[j]);
+					param1[j] = parseFloat(param1[j]) - 1;
+					param2[j] = parseFloat(param2[j]) - 1;
+					param3[j] = parseFloat(param3[j]) - 1;
 				}
 				
 				if (param1.length == 1) {
 					for (var j = 1; j < 4; ++j)
-						line[j] = parseFloat(line[j]);
+						line[j] = parseFloat(line[j]) - 1;
 					
 					var v = new Vector3(line[1], line[2], line[3]);
 					var f = new Face(v, 0, 0);
