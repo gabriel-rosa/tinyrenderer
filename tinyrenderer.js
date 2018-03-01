@@ -15,7 +15,7 @@ function clear_canvas(color) {
 
 function render_pixel(p, color) {
 	ctx.fillStyle = color;
-	ctx.fillRect(p.x, p.y, 1, 1);
+	ctx.fillRect(p.x, canvas.height - p.y, 1, 1);
 }
 
 // Bresenham's line algorithm
@@ -24,14 +24,15 @@ function render_line(p1, p2, color) {
 	var height = Math.abs(p2.y - p1.y);
 	
 	var steep = false;
-	if (height > width) 
+	if (height > width) {
 		// transpose
 		var tmp = new Point(p1.x, p2.x);
 		p1.x = p1.y;
 		p1.y = tmp.x;
 		p2.x = p2.y;
-		p2.y = tmp.x;				
+		p2.y = tmp.y;				
 		steep = true;
+		width = height;
 	}
 
 	if (p1.x > p2.x) {
@@ -42,12 +43,12 @@ function render_line(p1, p2, color) {
 	
 	for (var x = 0; x < width; ++x) {
 		var t = x / width;
-		var y = Math.floor( p1.y*(1.0-t) + p2.y*t );
+		var y = Math.round( p1.y*(1.0-t) + p2.y*t );
 		
 		if (steep)
-			render_pixel(new Point(y, p1.x+x, color); // de-transpose
+			render_pixel(new Point(y, p1.x+x), color); // de-transpose
 		else
-			render_pixel(new Point(p1.x+x, y, color);
+			render_pixel(new Point(p1.x+x, y), color);
 	}
 }
 
@@ -58,7 +59,7 @@ clear_canvas('black');
 
 render_line(new Point(13, 20), new Point(80, 40), 'white'); 
 render_line(new Point(20, 13), new Point(40, 80), 'red'); 
-render_line(new Point(40, 80), new Point(40, 8013, 20), 'red'); 
+render_line(new Point(80, 40), new Point(13, 20), 'red'); 
 
 /*var test_image = new TGA();
 test_image.open( "images/african_head_diffuse.tga", function(data){
