@@ -4,7 +4,7 @@ var Vector3 = function(x, y, z) {
 	this.z = z;
 };
 
-Vector3.prototype.copy(v_in) {
+Vector3.prototype.copy = function(v_in) {
 	var v_out = new Vector3(v_in.x, v_in.y, v_in.z);
 	return v_out;
 };
