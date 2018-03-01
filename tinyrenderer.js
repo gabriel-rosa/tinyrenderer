@@ -64,7 +64,7 @@ render_line(new Vector2(80, 40), new Vector2(13, 20), 'red');
 */
 
 var test_model = new Model();
-test_model.open("models/african_head.obj", function(data) 
+test_model.open("models/african_head.obj", function(data) {
 	for (var i = 0; i < test_model.faces.length; ++i) {
 		var face = test_model.faces[i];
 		
