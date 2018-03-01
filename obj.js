@@ -36,7 +36,7 @@ Model.prototype.parse = function(raw_text) {
 		if (line.length != 4)
 			continue;
 		
-		for (int j = 1; j < 4; ++j)
+		for (var j = 1; j < 4; ++j)
 			line[j] = parseFloat(line[j]);
 
 		switch (line[0]) {
