@@ -30,9 +30,12 @@ function put_pixel(p, color) {
 }
 
 // Bresenham's line algorithm
-function render_line(p1, p2, color) {
+function render_line(p1, p2, color) {	
 	var width = Math.abs(p2.x - p1.x);
 	var height = Math.abs(p2.y - p1.y);
+	
+	width = Math.min(width, canvas.width);
+	height = Math.min(height, canvas.height);
 	
 	var steep = false;
 	if (height > width) {
@@ -110,7 +113,7 @@ test_model.open("models/african_head.obj", function(data) {
 		render_line(v2, v0, color);
 	}
 	
-	//ctx.putImageData(image_data, 0, 0);
+	ctx.putImageData(image_data, 0, 0);
 });
 
 /*var test_image = new TGA();
