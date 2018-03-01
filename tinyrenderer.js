@@ -68,9 +68,9 @@ test_model.open("models/african_head.obj", function(data) {
 	for (var i = 0; i < test_model.faces.length; ++i) {
 		var face = test_model.faces[i];
 		
-		var v0 = test_model.vertices[ face.vertex_inds[0] ];
-		var v1 = test_model.vertices[ face.vertex_inds[1] ];
-		var v2 = test_model.vertices[ face.vertex_inds[2] ];
+		var v0 = test_model.vertices[ face.vertex_inds.x ];
+		var v1 = test_model.vertices[ face.vertex_inds.y ];
+		var v2 = test_model.vertices[ face.vertex_inds.z ];
 		
 		v0.x = (v0.x+1)*canvas.width/2;
 		v1.x = (v1.x+1)*canvas.width/2;
