@@ -94,9 +94,8 @@ test_model.open("models/african_head.obj", function(data) {
 	image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	
 	var color = new Color(255, 255, 255);
-	//test_model.faces.length
-	
-	for (var i = 0; i < 10; ++i) {
+
+	for (var i = 0; i < test_model.faces.length; ++i) {
 		var face = test_model.faces[i];
 		
 		var v0 = test_model.vertices[ face.vertex_inds.x ];
@@ -115,7 +114,7 @@ test_model.open("models/african_head.obj", function(data) {
 		render_line(v2, v0, color);
 	}
 	
-	ctx.putImageData(image_data, 0, 0);
+	//ctx.putImageData(image_data, 0, 0);
 });
 
 /*var test_image = new TGA();
