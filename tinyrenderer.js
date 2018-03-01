@@ -20,13 +20,15 @@ function clear_canvas(color) {
 }
 
 function put_pixel(p, color) {
-	var index = p.x + p.y*canvas.width;
-	image_data[index + 0] = color.r;
-	image_data[index + 1] = color.r;
-	image_data[index + 2] = color.r;
-	image_data[index + 3] = 255;
-	//ctx.fillStyle = color;
-	//ctx.fillRect(p.x, canvas.height - p.y, 1, 1);
+	if (p.x > 0 && p.y > 0 && p.x < canvas.width && p.y < canvas.height) {	
+		var index = p.x + p.y*canvas.width;
+		image_data[index + 0] = color.r;
+		image_data[index + 1] = color.r;
+		image_data[index + 2] = color.r;
+		image_data[index + 3] = 255;
+		//ctx.fillStyle = color;
+		//ctx.fillRect(p.x, canvas.height - p.y, 1, 1);
+	}
 }
 
 // Bresenham's line algorithm
