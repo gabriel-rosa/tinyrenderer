@@ -10,14 +10,19 @@ var Face = function(vertex_inds, texture_inds, normal_inds) {
 	this.normal_inds = normal_inds;
 };
 
+/*
 var Model = function(vertices, vertices_texture, vertices_normal, faces) {
 	this.vertices = vertices;
 	this.vertices_texture = vertices_texture;
 	this.vertices_normal = vertices_normal;
 	this.faces = faces;
 };
+*/
 
-function parseObj(raw_text) {
+var Model = function() {
+};
+
+Model.prototype.parse(raw_text) {
 	var lines = raw_text.split('\n');
 
 	var vertices = new Array();
@@ -76,7 +81,21 @@ function parseObj(raw_text) {
 		}
 	}
 
-	var model = new Model(vertices, vertices_texture, vertices_normal, faces);
+	this.vertices = vertices;
+	this.vertices_texture = vertices_texture;
+	this.vertices_normal = vertices_normal;
+	this.faces = faces;
+};
 
-	return model;
+Model.prototype.open = function(path, callback)
+{
+	var model = this;
+	var req = new XMLHttpRequest();
+	req.open('GET', path, true);
+	req.onload = function() {
+		if (this.status === 200) {
+			model.parse(req.response);
+		}
+	};
+	req.send(null);
 }

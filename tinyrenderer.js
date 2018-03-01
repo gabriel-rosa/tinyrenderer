@@ -61,6 +61,11 @@ render_line(new Vector2(13, 20), new Vector2(80, 40), 'white');
 render_line(new Vector2(20, 13), new Vector2(40, 80), 'red'); 
 render_line(new Vector2(80, 40), new Vector2(13, 20), 'red'); 
 
+var test_model = new Model();
+test.model.open("models/african_head.obj", function(data) {
+	console.log("Model loaded!");
+});
+
 /*var test_image = new TGA();
 test_image.open( "images/african_head_diffuse.tga", function(data){
 	var imageData = ctx.createImageData(test_image.header.width, test_image.header.height);
