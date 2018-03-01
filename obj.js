@@ -22,7 +22,7 @@ var Model = function(vertices, vertices_texture, vertices_normal, faces) {
 var Model = function() {
 };
 
-Model.prototype.parse(raw_text) {
+Model.prototype.parse = function(raw_text) {
 	var lines = raw_text.split('\n');
 
 	var vertices = new Array();
