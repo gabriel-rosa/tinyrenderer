@@ -86,6 +86,8 @@ render_line(new Vector2(80, 40), new Vector2(13, 20), 'red');
 var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {
 	clear_canvas('black');
+	image_data = ctx.getImageData();
+	
 	var color = new Color(255, 255, 255);
 	//test_model.faces.length
 	
