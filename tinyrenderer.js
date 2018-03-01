@@ -93,7 +93,7 @@ test_model.open("models/african_head.obj", function(data) {
 	clear_canvas('black');
 	image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	
-	print(image_data);
+	console.log(image_data);
 	
 	var color = new Color(255, 255, 255);
 
@@ -115,7 +115,7 @@ test_model.open("models/african_head.obj", function(data) {
 		render_line(v2, v0, color);
 	}
 	
-	print(image_data);
+	console.log(image_data);
 	
 	ctx.putImageData(image_data, 0, 0);
 });
