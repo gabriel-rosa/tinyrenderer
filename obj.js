@@ -4,6 +4,11 @@ var Vector3 = function(x, y, z) {
 	this.z = z;
 };
 
+Vector3.prototype.copy(v_in) {
+	var v_out = new Vector3(v_in.x, v_in.y, v_in.z);
+	return v_out;
+};
+
 var Face = function(vertex_inds, texture_inds, normal_inds) {
 	this.vertex_inds = vertex_inds;
 	this.texture_inds = texture_inds;
