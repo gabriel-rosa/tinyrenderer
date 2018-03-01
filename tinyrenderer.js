@@ -110,7 +110,7 @@ test_model.open("models/african_head.obj", function(data) {
 		render_line(v2, v0, color);
 	}
 	
-	ctx.putImageData(image_data, 0, 0);
+	//ctx.putImageData(image_data, 0, 0);
 });
 
 /*var test_image = new TGA();
