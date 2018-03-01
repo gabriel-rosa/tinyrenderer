@@ -113,7 +113,9 @@ Model.prototype.open = function(path, callback)
 	req.onload = function() {
 		if (this.status === 200) {
 			model.parse(req.response);
-			callback();
+			if (callback) {
+				callback.call(model);
+			}
 		}
 	};
 	req.send(null);
