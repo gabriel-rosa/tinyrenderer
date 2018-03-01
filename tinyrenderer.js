@@ -21,11 +21,10 @@ function clear_canvas(color) {
 
 function put_pixel(p, color) {
 	if (p.x > 0 && p.y > 0 && p.x < canvas.width && p.y < canvas.height) {	
-		var index = p.x + p.y*canvas.width;
+		var index = 4*(p.x + (canvas.height - p.y)*canvas.width);
 		image_data.data[index + 0] = color.r;
 		image_data.data[index + 1] = color.g;
 		image_data.data[index + 2] = color.b;
-		image_data.data[index + 3] = 255;
 		//ctx.fillStyle = color;
 		//ctx.fillRect(p.x, canvas.height - p.y, 1, 1);
 	}
@@ -83,18 +82,15 @@ canvas.height = 100;
 clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
+/*
 render_line(new Vector2(13, 20), new Vector2(80, 40), new Color(255, 255, 255)); 
 render_line(new Vector2(20, 13), new Vector2(40, 80), new Color(255, 0, 0)); 
 render_line(new Vector2(80, 40), new Vector2(13, 20), new Color(255, 0, 0)); 
-
 ctx.putImageData(image_data, 0, 0);
+*/
 
-/*
 var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {
-	clear_canvas('black');
-	image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);	
-	
 	var color = new Color(255, 255, 255);
 
 	for (var i = 0; i < test_model.faces.length; ++i) {
@@ -117,7 +113,7 @@ test_model.open("models/african_head.obj", function(data) {
 	
 	ctx.putImageData(image_data, 0, 0);
 });
-*/
+
 /*var test_image = new TGA();
 test_image.open( "images/african_head_diffuse.tga", function(data){
 	var imageData = ctx.createImageData(test_image.header.width, test_image.header.height);
