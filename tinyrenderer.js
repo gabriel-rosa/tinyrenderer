@@ -55,9 +55,8 @@ function render_line(p1, p2, color) {
 canvas.width = 800;
 canvas.height = 800;
 
-clear_canvas('black');
-
 /*
+clear_canvas('black');
 render_line(new Vector2(13, 20), new Vector2(80, 40), 'white'); 
 render_line(new Vector2(20, 13), new Vector2(40, 80), 'red'); 
 render_line(new Vector2(80, 40), new Vector2(13, 20), 'red'); 
@@ -65,6 +64,8 @@ render_line(new Vector2(80, 40), new Vector2(13, 20), 'red');
 
 var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {
+	clear_canvas('black');
+	
 	for (var i = 0; i < test_model.faces.length; ++i) {
 		var face = test_model.faces[i];
 		
