@@ -102,6 +102,11 @@ test_model.open("models/african_head.obj", function(data) {
 		var v1 = test_model.vertices[ face.vertex_inds.y ];
 		var v2 = test_model.vertices[ face.vertex_inds.z ];
 		
+		if (v1 === undefined) {
+			console.log(i);
+			console.log(face);
+		}
+		
 		v0.x = (v0.x+1)*canvas.width/2;
 		v1.x = (v1.x+1)*canvas.width/2;
 		v2.x = (v2.x+1)*canvas.width/2;
