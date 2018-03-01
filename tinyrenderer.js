@@ -100,13 +100,7 @@ test_model.open("models/african_head.obj", function(data) {
 		
 		var v0 = test_model.vertices[ face.vertex_inds.x ];
 		var v1 = test_model.vertices[ face.vertex_inds.y ];
-		var v2 = test_model.vertices[ face.vertex_inds.z ];
-		
-		if (v1 === undefined) {
-			console.log(i);
-			console.log(face);
-		}
-		
+		var v2 = test_model.vertices[ face.vertex_inds.z ];		
 		v0.x = (v0.x+1)*canvas.width/2;
 		v1.x = (v1.x+1)*canvas.width/2;
 		v2.x = (v2.x+1)*canvas.width/2;
@@ -119,7 +113,7 @@ test_model.open("models/african_head.obj", function(data) {
 		render_line(v2, v0, color);
 	}
 	
-	//ctx.putImageData(image_data, 0, 0);
+	ctx.putImageData(image_data, 0, 0);
 });
 
 /*var test_image = new TGA();
