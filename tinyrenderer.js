@@ -52,6 +52,15 @@ function render_line(p1, p2, color) {
 	}
 }
 
+function render_triangle(v0, v1, v2, color) {
+	ctx.beginPath();
+	ctx.moveTo(v0.x, v0.y);
+	ctx.lineTo(v1.x, v1.y);
+	ctx.lineTo(v2.x, v2.y);
+	ctx.strokeStyle = color;
+	ctx.stroke();
+}
+
 canvas.width = 800;
 canvas.height = 800;
 
@@ -79,9 +88,10 @@ test_model.open("models/african_head.obj", function(data) {
 		v0.y = (v0.y+1)*canvas.height/2;
 		v1.y = (v1.y+1)*canvas.height/2;
 		v2.y = (v2.y+1)*canvas.height/2;
-		render_line(v0, v1, 'white');
+		render_triangle(v0, v1, v2, 'white');
+		/*render_line(v0, v1, 'white');
 		render_line(v1, v2, 'white');
-		render_line(v2, v0, 'white');
+		render_line(v2, v0, 'white');*/
 	}
 });
 
