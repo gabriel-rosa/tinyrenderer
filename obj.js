@@ -33,17 +33,17 @@ function parseObj(raw_text) {
 
 		switch (line[0]) {
 			case 'v':
-				var Vector3 vertex = new Vector3(line[1], line[2], line[3]);
+				var vertex = new Vector3(line[1], line[2], line[3]);
 				vertices.push(vertex);
 				break;
 
 			case 'vt':
-				var Vector3 vertex_texture = new Vector3(line[1], line[2], line[3]);
+				var vertex_texture = new Vector3(line[1], line[2], line[3]);
 				vertices_texture.push(vertex_texture);
 				break;
 
 			case 'vn':
-				var Vector3 vertex_normal = new Vector3(line[1], line[2], line[3]);
+				var vertex_normal = new Vector3(line[1], line[2], line[3]);
 				vertices_normal.push(vertex_normal);
 				break;
 
