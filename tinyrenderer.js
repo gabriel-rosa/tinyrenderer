@@ -83,9 +83,9 @@ canvas.height = 100;
 clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-render_line(new Vector2(13, 20), new Vector2(80, 40), 'white'); 
-render_line(new Vector2(20, 13), new Vector2(40, 80), 'red'); 
-render_line(new Vector2(80, 40), new Vector2(13, 20), 'red'); 
+render_line(new Vector2(13, 20), new Vector2(80, 40), new Color(255, 255, 255)); 
+render_line(new Vector2(20, 13), new Vector2(40, 80), new Color(255, 0, 0)); 
+render_line(new Vector2(80, 40), new Vector2(13, 20), new Color(255, 0, 0)); 
 
 ctx.putImageData(image_data, 0, 0);
 
