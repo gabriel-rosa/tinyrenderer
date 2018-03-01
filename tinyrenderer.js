@@ -22,10 +22,10 @@ function clear_canvas(color) {
 function put_pixel(p, color) {
 	if (p.x > 0 && p.y > 0 && p.x < canvas.width && p.y < canvas.height) {	
 		var index = p.x + p.y*canvas.width;
-		image_data[index + 0] = color.r;
-		image_data[index + 1] = color.r;
-		image_data[index + 2] = color.r;
-		image_data[index + 3] = 255;
+		image_data.data[index + 0] = color.r;
+		image_data.data[index + 1] = color.r;
+		image_data.data[index + 2] = color.r;
+		image_data.data[index + 3] = 255;
 		//ctx.fillStyle = color;
 		//ctx.fillRect(p.x, canvas.height - p.y, 1, 1);
 	}
@@ -91,9 +91,7 @@ render_line(new Vector2(80, 40), new Vector2(13, 20), 'red');
 var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {
 	clear_canvas('black');
-	image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-	
-	console.log(image_data);
+	image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);	
 	
 	var color = new Color(255, 255, 255);
 
@@ -113,9 +111,7 @@ test_model.open("models/african_head.obj", function(data) {
 		render_line(v0, v1, color);
 		render_line(v1, v2, color);
 		render_line(v2, v0, color);
-	}
-	
-	console.log(image_data);
+	}	
 	
 	ctx.putImageData(image_data, 0, 0);
 });
