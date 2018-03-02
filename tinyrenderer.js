@@ -93,10 +93,12 @@ var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {
 	var color = new Color(255, 255, 255);
 
-	for (var i = 0; i < test_model.faces.length; ++i) {
+	for (var i = 0; i < 20; ++i) {
 		var ind1 = test_model.faces[i].vertex_inds.x;
 		var ind2 = test_model.faces[i].vertex_inds.y;
 		var ind3 = test_model.faces[i].vertex_inds.z;
+		
+		console.log(i, ind1, ind2, ind3);
 		
 		var v0 = test_model.vertices[ind1].copy();
 		var v1 = test_model.vertices[ind2].copy();
@@ -107,6 +109,7 @@ test_model.open("models/african_head.obj", function(data) {
 		v0.y = Math.round((v0.y+1)*canvas.height/2);
 		v1.y = Math.round((v1.y+1)*canvas.height/2);
 		v2.y = Math.round((v2.y+1)*canvas.height/2);
+		console.log(v0, v1, v2);
 		//render_triangle(v0, v1, v2, 'white');
 		render_line(v0, v1, color);
 		render_line(v1, v2, color);
