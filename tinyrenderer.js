@@ -25,8 +25,6 @@ function put_pixel(p, color) {
 		image_data.data[index + 0] = color.r;
 		image_data.data[index + 1] = color.g;
 		image_data.data[index + 2] = color.b;
-		//ctx.fillStyle = color;
-		//ctx.fillRect(p.x, canvas.height - p.y, 1, 1);
 	}
 }
 
@@ -67,15 +65,6 @@ function render_line(p1_, p2_, color) {
 	}
 }
 
-function render_triangle(v0, v1, v2, color) {
-	ctx.beginPath();
-	ctx.moveTo(v0.x, v0.y);
-	ctx.lineTo(v1.x, v1.y);
-	ctx.lineTo(v2.x, v2.y);
-	ctx.strokeStyle = color;
-	ctx.stroke();
-}
-
 canvas.width = 800;
 canvas.height = 800;
 
@@ -95,24 +84,22 @@ test_model.open("models/african_head.obj", function(data) {
 	
 	var color = new Color(255, 255, 255);
 
-	for (var i = 0; i < 20; ++i) {
+	for (var i = 0; i < test_model.faces.length; ++i) {
 		var ind1 = test_model.faces[i].vertex_inds.x;
 		var ind2 = test_model.faces[i].vertex_inds.y;
 		var ind3 = test_model.faces[i].vertex_inds.z;
 		
-		console.log(i, ind1, ind2, ind3);
-		
 		var v0 = test_model.vertices[ind1].copy();
 		var v1 = test_model.vertices[ind2].copy();
 		var v2 = test_model.vertices[ind3].copy();
+		
 		v0.x = Math.round((v0.x+1)*canvas.width/2);
 		v1.x = Math.round((v1.x+1)*canvas.width/2);
 		v2.x = Math.round((v2.x+1)*canvas.width/2);
 		v0.y = Math.round((v0.y+1)*canvas.height/2);
 		v1.y = Math.round((v1.y+1)*canvas.height/2);
 		v2.y = Math.round((v2.y+1)*canvas.height/2);
-		console.log(v0, v1, v2);
-		//render_triangle(v0, v1, v2, 'white');
+		
 		render_line(v0, v1, color);
 		render_line(v1, v2, color);
 		render_line(v2, v0, color);
@@ -120,31 +107,6 @@ test_model.open("models/african_head.obj", function(data) {
 	
 	ctx.putImageData(image_data, 0, 0);
 });
-
-function render_face(i) {
-	var color = new Color(255, 255, 255);
-	
-	var ind1 = test_model.faces[i].vertex_inds.x;
-	var ind2 = test_model.faces[i].vertex_inds.y;
-	var ind3 = test_model.faces[i].vertex_inds.z;
-
-	console.log(i, ind1, ind2, ind3);
-
-	var v0 = test_model.vertices[ind1].copy();
-	var v1 = test_model.vertices[ind2].copy();
-	var v2 = test_model.vertices[ind3].copy();
-	v0.x = Math.round((v0.x+1)*canvas.width/2);
-	v1.x = Math.round((v1.x+1)*canvas.width/2);
-	v2.x = Math.round((v2.x+1)*canvas.width/2);
-	v0.y = Math.round((v0.y+1)*canvas.height/2);
-	v1.y = Math.round((v1.y+1)*canvas.height/2);
-	v2.y = Math.round((v2.y+1)*canvas.height/2);
-	console.log(v0, v1, v2);
-	render_line(v0, v1, color);
-	render_line(v1, v2, color);
-	render_line(v2, v0, color);	
-	ctx.putImageData(image_data, 0, 0);
-}
 
 /*var test_image = new TGA();
 test_image.open( "images/african_head_diffuse.tga", function(data){
