@@ -101,12 +101,12 @@ test_model.open("models/african_head.obj", function(data) {
 		var v0 = test_model.vertices[ind1].copy();
 		var v1 = test_model.vertices[ind2].copy();
 		var v2 = test_model.vertices[ind3].copy();
-		v0.x = (v0.x+1)*canvas.width/2;
-		v1.x = (v1.x+1)*canvas.width/2;
-		v2.x = (v2.x+1)*canvas.width/2;
-		v0.y = (v0.y+1)*canvas.height/2;
-		v1.y = (v1.y+1)*canvas.height/2;
-		v2.y = (v2.y+1)*canvas.height/2;
+		v0.x = Math.round((v0.x+1)*canvas.width/2);
+		v1.x = Math.round((v1.x+1)*canvas.width/2);
+		v2.x = Math.round((v2.x+1)*canvas.width/2);
+		v0.y = Math.round((v0.y+1)*canvas.height/2);
+		v1.y = Math.round((v1.y+1)*canvas.height/2);
+		v2.y = Math.round((v2.y+1)*canvas.height/2);
 		//render_triangle(v0, v1, v2, 'white');
 		render_line(v0, v1, color);
 		render_line(v1, v2, color);
