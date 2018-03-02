@@ -56,8 +56,7 @@ function render_line(p1_, p2_, color) {
 	
 	for (var x = 0; x < width; ++x) {
 		var t = x / width;
-		var y = Math.round( p1.y*(1.0-t) + p2.y*t );
-		
+		var y = Math.round( p1.y*(1.0-t) + p2.y*t );		
 		if (steep)
 			put_pixel(new Vector2(y, p1.x+x), color); // de-transpose
 		else
