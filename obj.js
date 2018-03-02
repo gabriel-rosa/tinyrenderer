@@ -4,8 +4,8 @@ var Vector3 = function(x, y, z) {
 	this.z = z;
 };
 
-Vector3.prototype.copy = function(v_in) {
-	var v_out = new Vector3(v_in.x, v_in.y, v_in.z);
+Vector3.prototype.copy = function() {
+	var v_out = new Vector3(this.x, this.y, this.z);
 	return v_out;
 };
 
