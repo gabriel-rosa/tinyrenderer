@@ -31,29 +31,29 @@ function put_pixel(p, color) {
 }
 
 // Bresenham's line algorithm
-function render_line(p1, p2, color) {	
+function render_line(p1_, p2_, color) {	
+	var p1 = new Vector2(p1_.x, p1_.y);
+	var p2 = new Vector2(p2_.x, p2_.y);
+	
 	var width = Math.abs(p2.x - p1.x);
 	var height = Math.abs(p2.y - p1.y);
-	
-	width = Math.min(width, canvas.width);
-	height = Math.min(height, canvas.height);
 	
 	var steep = false;
 	if (height > width) {
 		// transpose
-		var tmp = new Vector2(p1.x, p2.x);
+		var t1 = new Vector2(p1.x, p2.x);
 		p1.x = p1.y;
-		p1.y = tmp.x;
+		p1.y = t1.x;
 		p2.x = p2.y;
-		p2.y = tmp.y;				
+		p2.y = t1.y;				
 		steep = true;
 		width = height;
 	}
 
 	if (p1.x > p2.x) {
-		var tmp = p1;
+		var t2 = p1;
 		p1 = p2;
-		p2 = tmp;
+		p2 = t2;
 	}
 	
 	for (var x = 0; x < width; ++x) {
