@@ -80,9 +80,7 @@ ctx.putImageData(image_data, 0, 0);
 
 var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {
-	return;
-	
-	var color = new Color(255, 255, 255);
+	var white = new Color(255, 255, 255);
 
 	for (var i = 0; i < test_model.faces.length; ++i) {
 		var ind1 = test_model.faces[i].vertex_inds.x;
@@ -100,9 +98,9 @@ test_model.open("models/african_head.obj", function(data) {
 		v1.y = Math.round((v1.y+1)*canvas.height/2);
 		v2.y = Math.round((v2.y+1)*canvas.height/2);
 		
-		render_line(v0, v1, color);
-		render_line(v1, v2, color);
-		render_line(v2, v0, color);
+		render_line(v0, v1, white);
+		render_line(v1, v2, white);
+		render_line(v2, v0, white);
 	}	
 	
 	ctx.putImageData(image_data, 0, 0);
