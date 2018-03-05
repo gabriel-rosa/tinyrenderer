@@ -54,9 +54,9 @@ function render_line(p1_, p2_, color) {
 		p2 = t2;
 	}
 	
-	for (var x = 0; x < width; ++x) {
+	for (var x = 0; x <= width; ++x) {
 		var t = x / width;
-		var y = Math.round( p1.y*(1.0-t) + p2.y*t );		
+		var y = Math.floor( p1.y*(1.0-t) + p2.y*t );		
 		if (steep)
 			put_pixel(new Vector2(y, p1.x+x), color); // de-transpose
 		else
@@ -64,19 +64,59 @@ function render_line(p1_, p2_, color) {
 	}
 }
 
-canvas.width = 800;
-canvas.height = 800;
+function order_vertices_3(vertices) {
+	var ord = new Array();
+
+	ord = [vertices[0], vertices[1], vertices[2]];
+
+	if (ord[0].y > ord[2].y) {
+		var t = ord[0];
+		ord[0] = ord[2];
+		ord[2] = t;
+	}
+
+	if (ord[0].y > ord[1].y) {
+		var t = ord[0];
+		ord[0] = ord[1];
+		ord[1] = t;
+	}
+
+	if (ord[1].y > ord[2].y) {
+		var t = ord[1];
+		ord[1] = ord[2];
+		ord[2] = t;
+	}
+
+	return ord;
+}
+
+function render_triangle(vertices, color) {
+	var ordered_vertices = order_vertices_3(vertices);
+
+	console.log(ordered_vertices);
+
+	render_line(vertices[0], vertices[1], color);
+	render_line(vertices[1], vertices[2], color);
+	render_line(vertices[2], vertices[0], color);
+}
+
+canvas.width = 200;
+canvas.height = 200;
 
 clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-/*
-render_line(new Vector2(13, 20), new Vector2(80, 40), new Color(255, 255, 255)); 
-render_line(new Vector2(20, 13), new Vector2(40, 80), new Color(255, 0, 0)); 
-render_line(new Vector2(80, 40), new Vector2(13, 20), new Color(255, 0, 0)); 
-ctx.putImageData(image_data, 0, 0);
-*/
 
+var t0 = [new Vector2(10, 70),   new Vector2(50, 160),  new Vector2(70, 80)]; 
+var t1 = [new Vector2(180, 50),  new Vector2(150, 1),   new Vector2(70, 180)]; 
+var t2 = [new Vector2(180, 150), new Vector2(120, 160), new Vector2(130, 180)]; 
+render_triangle(t0, new Color(255, 0, 0)); 
+render_triangle(t1, new Color(255, 255, 255)); 
+render_triangle(t2, new Color(0, 255, 0));
+ctx.putImageData(image_data, 0, 0);
+
+
+/*
 var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {
 	var white = new Color(255, 255, 255);
@@ -104,6 +144,7 @@ test_model.open("models/african_head.obj", function(data) {
 	
 	ctx.putImageData(image_data, 0, 0);
 });
+*/
 
 /*var test_image = new TGA();
 test_image.open( "images/african_head_diffuse.tga", function(data){
