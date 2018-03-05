@@ -91,13 +91,39 @@ function order_vertices_3(vertices) {
 }
 
 function render_triangle(vertices, color) {
-	var ordered_vertices = order_vertices_3(vertices);
+	var ord = order_vertices_3(vertices);
 
-	console.log(ordered_vertices);
+	var height1 = ord[1].y - ord[0].y;
+	var height2 = ord[2].y - ord[1].y;
 
-	render_line(vertices[0], vertices[1], color);
-	render_line(vertices[1], vertices[2], color);
-	render_line(vertices[2], vertices[0], color);
+	for (var y = 0; y <= height1; ++y) {
+		var t1 = y / height1;
+		var t2 = y / (height1+height2);
+		var x1 = Math.floor( ord[0].x*(1.0-t1) + ord[1].x*t1 );
+		var x2 = Math.floor( ord[0].x*(1.0-t2) + ord[2].x*t2 );
+
+		var width = Math.abs(x2 - x1);
+		for (var x = 0; x < width; ++x) {
+			put_pixel(new Vector2(Math.min(x1, x2) + x, ord[0].y + y), color);
+		}
+	}
+
+	for (var y = 0; y <= height2; ++y) {
+		var t1 = y / height2;
+		var t2 = (y + height1) / (height1+height2);
+		var x1 = Math.floor( ord[1].x*(1.0-t1) + ord[2].x*t1 );
+		var x2 = Math.floor( ord[0].x*(1.0-t2) + ord[2].x*t2 );
+
+		var width = Math.abs(x2 - x1);
+		for (var x = 0; x < width; ++x) {
+			put_pixel(new Vector2(Math.min(x1, x2) + x, ord[1].y + y), color);
+		}
+	}
+
+
+	render_line(ord[0], ord[1], color);
+	render_line(ord[1], ord[2], color);
+	render_line(ord[2], ord[0], color);
 }
 
 canvas.width = 200;
