@@ -64,66 +64,57 @@ function render_line(p1_, p2_, color) {
 	}
 }
 
-function order_vertices_3(vertices) {
-	var ord = new Array();
+function dot(v1, v2) {
+	var out = 0;
+	
+	for (var i = 0; i < v1.length; ++i)
+		out += v1[i]*v2[i];
 
-	ord = [vertices[0], vertices[1], vertices[2]];
+	return out;
+}
 
-	if (ord[0].y > ord[2].y) {
-		var t = ord[0];
-		ord[0] = ord[2];
-		ord[2] = t;
-	}
+function cross(v1, v2) {
+	var s1 = v1.y*v2.z - v1.z*v2.y;
+	var s2 = v1.z*v2.x - v1.x*v2.z;
+	var s3 = v1.x*v2.y - v1.y*v2.x;
 
-	if (ord[0].y > ord[1].y) {
-		var t = ord[0];
-		ord[0] = ord[1];
-		ord[1] = t;
-	}
+	return new Vector3(s1, s2, s3);
+}
 
-	if (ord[1].y > ord[2].y) {
-		var t = ord[1];
-		ord[1] = ord[2];
-		ord[2] = t;
-	}
+function barycentric(vertices, P) {
+	var x = new Vector3(vertices[2].x - vertices[0].x, vertices[1].x - vertices[0].x, vertices[0].x - P.x);
+	var y = new Vector3(vertices[2].y - vertices[0].y, vertices[1].y - vertices[0].y, vertices[0].y - P.y);
 
-	return ord;
+	var u = cross(x, y);
+
+	if (Math.abs(u.z) < 1)
+		return undefined;
+	else
+		return new Vector3(1 - (u.x+u.y)/u.z, u.y/u.z, u.x/u.z);
+}
+
+function bbox_triangle(vertices) {
+	var minX = Math.max(0, Math.min(vertices[0].x, vertices[1].x, vertices[2].x));
+	var minY = Math.max(0, Math.min(vertices[0].y, vertices[1].y, vertices[2].y));
+	var maxX = Math.min(canvas.width-1, Math.max(vertices[0].x, vertices[1].x, vertices[2].x));
+	var maxY = Math.min(canvas.height-1, Math.max(vertices[0].y, vertices[1].y, vertices[2].y));
+
+	return [new Vector2(minX, minY), new Vector2(maxX, maxY)];
 }
 
 function render_triangle(vertices, color) {
-	var ord = order_vertices_3(vertices);
+	var bbox = bbox_triangle(vertices);
 
-	var height1 = ord[1].y - ord[0].y;
-	var height2 = ord[2].y - ord[1].y;
+	for (var x = bbox[0].x; x < bbox[1].x; ++x) {
+		for (var y = bbox[0].y; y < bbox[1].y; ++y) {
+			var P = new Vector2(x, y);
+			var bc = barycentric(vertices, P);
+			
+			if (bc === undefined || bc.x < 0 || bc.y < 0 ||  bc.z < 0) continue;
 
-	for (var y = 0; y <= height1; ++y) {
-		var t1 = y / height1;
-		var t2 = y / (height1+height2);
-		var x1 = Math.floor( ord[0].x*(1.0-t1) + ord[1].x*t1 );
-		var x2 = Math.floor( ord[0].x*(1.0-t2) + ord[2].x*t2 );
-
-		var width = Math.abs(x2 - x1);
-		for (var x = 0; x < width; ++x) {
-			put_pixel(new Vector2(Math.min(x1, x2) + x, ord[0].y + y), color);
+			put_pixel(P, color);
 		}
 	}
-
-	for (var y = 0; y <= height2; ++y) {
-		var t1 = y / height2;
-		var t2 = (y + height1) / (height1+height2);
-		var x1 = Math.floor( ord[1].x*(1.0-t1) + ord[2].x*t1 );
-		var x2 = Math.floor( ord[0].x*(1.0-t2) + ord[2].x*t2 );
-
-		var width = Math.abs(x2 - x1);
-		for (var x = 0; x < width; ++x) {
-			put_pixel(new Vector2(Math.min(x1, x2) + x, ord[1].y + y), color);
-		}
-	}
-
-
-	render_line(ord[0], ord[1], color);
-	render_line(ord[1], ord[2], color);
-	render_line(ord[2], ord[0], color);
 }
 
 canvas.width = 200;
