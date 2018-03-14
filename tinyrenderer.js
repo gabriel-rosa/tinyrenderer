@@ -124,21 +124,22 @@ clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
 
-var t0 = [new Vector2(10, 70),   new Vector2(50, 160),  new Vector2(70, 80)]; 
+/*var t0 = [new Vector2(10, 70),   new Vector2(50, 160),  new Vector2(70, 80)]; 
 var t1 = [new Vector2(180, 50),  new Vector2(150, 1),   new Vector2(70, 180)]; 
 var t2 = [new Vector2(180, 150), new Vector2(120, 160), new Vector2(130, 180)]; 
 render_triangle(t0, new Color(255, 0, 0)); 
 render_triangle(t1, new Color(255, 255, 255)); 
 render_triangle(t2, new Color(0, 255, 0));
 ctx.putImageData(image_data, 0, 0);
+*/
 
 
-/*
 var test_model = new Model();
-test_model.open("models/african_head.obj", function(data) {
-	var white = new Color(255, 255, 255);
-
-	for (var i = 0; i < test_model.faces.length; ++i) {
+test_model.open("models/african_head.obj", function(data) {	
+	var screen_coords = [new Vector2(0,0), new Vector2(0,0), new Vector2(0,0)];
+	for (var i = 0; i < test_model.faces.length; ++i) {	
+		var color = new Color(Math.floor(Math.random()*256), Math.floor(Math.random()*256), Math.floor(Math.random()*256));
+		
 		var ind1 = test_model.faces[i].vertex_inds.x;
 		var ind2 = test_model.faces[i].vertex_inds.y;
 		var ind3 = test_model.faces[i].vertex_inds.z;
@@ -147,21 +148,19 @@ test_model.open("models/african_head.obj", function(data) {
 		var v1 = test_model.vertices[ind2].copy();
 		var v2 = test_model.vertices[ind3].copy();
 		
-		v0.x = Math.round((v0.x+1)*canvas.width/2);
-		v1.x = Math.round((v1.x+1)*canvas.width/2);
-		v2.x = Math.round((v2.x+1)*canvas.width/2);
-		v0.y = Math.round((v0.y+1)*canvas.height/2);
-		v1.y = Math.round((v1.y+1)*canvas.height/2);
-		v2.y = Math.round((v2.y+1)*canvas.height/2);
+		screen_coords[0].x = Math.round((v0.x+1)*canvas.width/2);
+		screen_coords[1].x = Math.round((v1.x+1)*canvas.width/2);
+		screen_coords[2].x = Math.round((v2.x+1)*canvas.width/2);
+		screen_coords[0].y = Math.round((v0.y+1)*canvas.height/2);
+		screen_coords[1] = Math.round((v1.y+1)*canvas.height/2);
+		screen_coords[2].y = Math.round((v2.y+1)*canvas.height/2);
 		
-		render_line(v0, v1, white);
-		render_line(v1, v2, white);
-		render_line(v2, v0, white);
+		render_triangle(screen_coords, color);
 	}	
 	
 	ctx.putImageData(image_data, 0, 0);
 });
-*/
+
 
 /*var test_image = new TGA();
 test_image.open( "images/african_head_diffuse.tga", function(data){
