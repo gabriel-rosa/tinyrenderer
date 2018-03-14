@@ -117,8 +117,8 @@ function render_triangle(vertices, color) {
 	}
 }
 
-canvas.width = 200;
-canvas.height = 200;
+canvas.width = 1000;
+canvas.height = 1000;
 
 clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
