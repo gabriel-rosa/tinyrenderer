@@ -117,8 +117,8 @@ function render_triangle(vertices, color) {
 	}
 }
 
-canvas.width = 1000;
-canvas.height = 1000;
+canvas.width = 800;
+canvas.height = 800;
 
 clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -137,25 +137,35 @@ ctx.putImageData(image_data, 0, 0);
 var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {	
 	var screen_coords = [new Vector2(0,0), new Vector2(0,0), new Vector2(0,0)];
-	for (var i = 0; i < test_model.faces.length; ++i) {	
-		var color = new Color(Math.floor(Math.random()*256), Math.floor(Math.random()*256), Math.floor(Math.random()*256));
-		
+	var n = new Vector3(0,0,0);
+	
+	var light_dir = new Vector3(0, 0, 1);
+	
+	for (var i = 0; i < test_model.faces.length; ++i) {					
 		var ind1 = test_model.faces[i].vertex_inds.x;
 		var ind2 = test_model.faces[i].vertex_inds.y;
 		var ind3 = test_model.faces[i].vertex_inds.z;
 		
-		var v0 = test_model.vertices[ind1].copy();
-		var v1 = test_model.vertices[ind2].copy();
-		var v2 = test_model.vertices[ind3].copy();
+		var world_coords = [test_model.vertices[ind1].copy(), 
+				    test_model.vertices[ind2].copy(),
+				    test_model.vertices[ind3].copy()];
 		
-		screen_coords[0].x = Math.round((v0.x+1)*canvas.width/2);
-		screen_coords[1].x = Math.round((v1.x+1)*canvas.width/2);
-		screen_coords[2].x = Math.round((v2.x+1)*canvas.width/2);
-		screen_coords[0].y = Math.round((v0.y+1)*canvas.height/2);
-		screen_coords[1].y = Math.round((v1.y+1)*canvas.height/2);
-		screen_coords[2].y = Math.round((v2.y+1)*canvas.height/2);
+		for (var j=0; j<3; j++) {
+			screen_coords[j].x = Math.round((world_coords[j].x+1)*canvas.width/2);
+			screen_coords[j].y = Math.round((world_coords[j].y+1)*canvas.height/2);
+		}
 		
-		render_triangle(screen_coords, color);
+		n.x = (world_coords[2].x-world_coords[0].x)^(world_coords[1].x-world_coords[0].x);
+		n.y = (world_coords[2].y-world_coords[0].y)^(world_coords[1].y-world_coords[0].y);
+		n.z = (world_coords[2].z-world_coords[0].z)^(world_coords[1].z-world_coords[0].z);
+		n.normalize();
+		
+		var light_intensity = n.x*light_dir.x + n.y*light_dir.y + n.z*light_dir.z;
+		
+		if (light_intensity > 0) {
+			var color = new Color(Math.floor(light_intensity*256), Math.floor(light_intensity*256), Math.floor(light_intensity*256));
+			render_triangle(screen_coords, color);
+		}
 	}	
 	
 	ctx.putImageData(image_data, 0, 0);
