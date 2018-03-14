@@ -137,8 +137,6 @@ ctx.putImageData(image_data, 0, 0);
 var test_model = new Model();
 test_model.open("models/african_head.obj", function(data) {	
 	var screen_coords = [new Vector2(0,0), new Vector2(0,0), new Vector2(0,0)];
-	var n = new Vector3(0,0,0);
-	
 	var light_dir = new Vector3(0, 0, 1);
 	
 	for (var i = 0; i < test_model.faces.length; ++i) {					
@@ -155,15 +153,21 @@ test_model.open("models/african_head.obj", function(data) {
 			screen_coords[j].y = Math.round((world_coords[j].y+1)*canvas.height/2);
 		}
 		
-		n.x = (world_coords[2].x-world_coords[0].x)^(world_coords[1].x-world_coords[0].x);
-		n.y = (world_coords[2].y-world_coords[0].y)^(world_coords[1].y-world_coords[0].y);
-		n.z = (world_coords[2].z-world_coords[0].z)^(world_coords[1].z-world_coords[0].z);
+		var v1 = new Vector3(world_coords[2].x-world_coords[0].x, 
+				     world_coords[2].y-world_coords[0].y,
+				     world_coords[2].z-world_coords[0].z);
+		var v2 = new Vector3(world_coords[2].x-world_coords[1].x, 
+				     world_coords[2].y-world_coords[1].y,
+				     world_coords[2].z-world_coords[1].z);
+		var n = cross(v1, v2);
 		n.normalize();
 		
 		var light_intensity = n.x*light_dir.x + n.y*light_dir.y + n.z*light_dir.z;
 		
 		if (light_intensity > 0) {
-			var color = new Color(Math.floor(light_intensity*256), Math.floor(light_intensity*256), Math.floor(light_intensity*256));
+			var color = new Color(Math.floor(light_intensity*256), 
+					      Math.floor(light_intensity*256), 
+					      Math.floor(light_intensity*256));
 			render_triangle(screen_coords, color);
 		}
 	}	
