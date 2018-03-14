@@ -152,7 +152,7 @@ test_model.open("models/african_head.obj", function(data) {
 		screen_coords[1].x = Math.round((v1.x+1)*canvas.width/2);
 		screen_coords[2].x = Math.round((v2.x+1)*canvas.width/2);
 		screen_coords[0].y = Math.round((v0.y+1)*canvas.height/2);
-		screen_coords[1] = Math.round((v1.y+1)*canvas.height/2);
+		screen_coords[1].y = Math.round((v1.y+1)*canvas.height/2);
 		screen_coords[2].y = Math.round((v2.y+1)*canvas.height/2);
 		
 		render_triangle(screen_coords, color);
