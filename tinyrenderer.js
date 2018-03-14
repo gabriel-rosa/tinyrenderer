@@ -176,6 +176,7 @@ test_model.open("models/african_head.obj", function(data) {
 });
 
 
+
 /*var test_image = new TGA();
 test_image.open( "images/african_head_diffuse.tga", function(data){
 	var imageData = ctx.createImageData(test_image.header.width, test_image.header.height);
