@@ -1,4 +1,4 @@
-var canvas, ctx, image_data, zbuffer_data;
+var canvas, ctx, image_data, zbuffer_data, texture_data;
 canvas = document.createElement('canvas');
 ctx = canvas.getContext('2d');
 document.body.appendChild(canvas);
@@ -7,6 +7,11 @@ var Vector2 = function(x, y) {
 	this.x = x;
 	this.y = y;
 };
+
+Vector2.prototype.copy = function() {
+	var v_out = new Vector2(this.x, this.y);
+	return v_out;
+}
 
 var Color = function(r, g, b) {
 	this.r = r;
@@ -111,7 +116,28 @@ function bbox_triangle(vertices) {
 	return [new Vector2(minX, minY), new Vector2(maxX, maxY)];
 }
 
-function render_triangle(vertices, color) {
+function sample_texture(uv_coords, barycentric_coords, texture) {
+	var uv = new Vector2(0, 0);
+			
+	uv.x += uv_coords[0].x*barycentric_coords.x;
+	uv.y += uv_coords[0].y*barycentric_coords.x;
+	uv.x += uv_coords[1].x*barycentric_coords.y;
+	uv.y += uv_coords[1].y*barycentric_coords.y;
+	uv.x += uv_coords[2].x*barycentric_coords.z;
+	uv.y += uv_coords[2].y*barycentric_coords.z;
+	
+	uv.x *= texture.width;
+	uv.y *= texture.height;
+	
+	var index = Math.floor(uv.x + uv.y*texture.width);
+	var r = texture.data[index+0];
+	var g = texture.data[index+1];
+	var b = texture.data[index+2];
+	
+	return new Color(r, g, b);
+}
+
+function render_triangle(vertices, uv_coords, color) {
 	var bbox = bbox_triangle(vertices);
 
 	for (var x = bbox[0].x; x < bbox[1].x; ++x) {
@@ -126,10 +152,16 @@ function render_triangle(vertices, color) {
 			P.z += vertices[1].z*bc.y;
 			P.z += vertices[2].z*bc.z;
 			
+			var texture_color = sample_texture(uv_coords, bc, texture_data);
+			
+			var lit_color = new Color(texture_color.r*color.r/255,
+						  texture_color.g*color.g/255,
+						  texture_color.b*color.b/255);
+			
 			var index = Math.floor( P.x + P.y*canvas.width );
 			if (zbuffer_data[index] < P.z) {
 				zbuffer_data[index] = P.z;				
-				put_pixel(P, color);
+				put_pixel(P, lit_color);
 			}
 		}
 	}
@@ -153,26 +185,42 @@ ctx.putImageData(image_data, 0, 0);
 */
 
 
+var texture_image = new TGA();
 var test_model = new Model();
-test_model.open("models/african_head.obj", function(data) {	
+
+texture_image.open( "images/african_head_diffuse.tga", function(data){
+	texture_data = texture_image.getImageData();
+	
+	test_model.open("models/african_head.obj", mesh_onload(data));
+});
+
+function mesh_onload(data) {
 	var screen_coords = [new Vector2(0,0), new Vector2(0,0), new Vector2(0,0)];
 	var light_dir = new Vector3(0, 0, 1);
-	
+
 	for (var i = 0; i < test_model.faces.length; ++i) {					
 		var ind1 = test_model.faces[i].vertex_inds.x;
 		var ind2 = test_model.faces[i].vertex_inds.y;
 		var ind3 = test_model.faces[i].vertex_inds.z;
-		
+
 		var world_coords = [test_model.vertices[ind1].copy(), 
 				    test_model.vertices[ind2].copy(),
 				    test_model.vertices[ind3].copy()];
 		
+		ind1 = test_model.faces[i].texture_inds.x;
+		ind2 = test_model.faces[i].texture_inds.y;
+		ind3 = test_model.faces[i].texture_inds.z;
+
+		var uv_coords = [test_model.vertices_normal[ind1].copy(), 
+				 test_model.vertices_normal[ind2].copy(),
+				 test_model.vertices_normal[ind3].copy()];
+
 		for (var j=0; j<3; j++) {
 			screen_coords[j].x = Math.round((world_coords[j].x+1)*canvas.width/2);
 			screen_coords[j].y = Math.round((world_coords[j].y+1)*canvas.height/2);
 			screen_coords[j].z = world_coords[j].z;
 		}
-		
+
 		var v1 = new Vector3(world_coords[2].x-world_coords[0].x, 
 				     world_coords[2].y-world_coords[0].y,
 				     world_coords[2].z-world_coords[0].z);
@@ -181,28 +229,16 @@ test_model.open("models/african_head.obj", function(data) {
 				     world_coords[2].z-world_coords[1].z);
 		var n = cross(v1, v2);
 		n.normalize();
-		
+
 		var light_intensity = n.x*light_dir.x + n.y*light_dir.y + n.z*light_dir.z;
-		
+
 		if (light_intensity > 0) {
 			var color = new Color(Math.floor(light_intensity*256), 
 					      Math.floor(light_intensity*256), 
 					      Math.floor(light_intensity*256));
-			render_triangle(screen_coords, color);
+			render_triangle(screen_coords, uv_coords, color);
 		}
 	}	
-	
+
 	ctx.putImageData(image_data, 0, 0);
-});
-
-
-
-/*var test_image = new TGA();
-test_image.open( "images/african_head_diffuse.tga", function(data){
-	var imageData = ctx.createImageData(test_image.header.width, test_image.header.height);
-
-	canvas.width = test_image.header.width;
-	canvas.height = test_image.header.height;
-
-	ctx.putImageData(test_image.getImageData(imageData), 0, 0);
-});*/
+}
