@@ -140,8 +140,6 @@ function sample_texture(uv_coords, barycentric_coords) {
 	var g = texture_data.data[index+1];
 	var b = texture_data.data[index+2];
 	
-	console.log(index, r, g, b, uv.x, uv.y);
-	
 	return new Color(r, g, b);
 }
 
