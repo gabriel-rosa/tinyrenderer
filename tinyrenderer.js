@@ -172,6 +172,7 @@ test_model.open("models/african_head.obj", function(data) {
 		for (var j=0; j<3; j++) {
 			screen_coords[j].x = Math.round((world_coords[j].x+1)*canvas.width/2);
 			screen_coords[j].y = Math.round((world_coords[j].y+1)*canvas.height/2);
+			screen_coords[j].z = world_coords[j].z;
 		}
 		
 		var v1 = new Vector3(world_coords[2].x-world_coords[0].x, 
