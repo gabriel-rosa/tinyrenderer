@@ -43,12 +43,13 @@ Model.prototype.parse = function(raw_text) {
 	var faces = new Array();
 
 	for (var i = 0; i < lines.length; ++i) {
+		// turn multiple spaces into single space so split works predictably
+		line.replace(/\s+/, ' '); 
+		
 		var line = lines[i].split(' ');
 
 		if (line.length != 4)
-			continue;
-		
-		console.log(line[0]);
+			continue;				
 		
 		switch (line[0]) {
 			case 'v':
