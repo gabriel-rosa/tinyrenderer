@@ -167,7 +167,7 @@ function render_triangle(vertices, uv_coords, color) {
 			var index = Math.floor( P.x + P.y*canvas.width );
 			if (zbuffer_data[index] < P.z) {
 				zbuffer_data[index] = P.z;				
-				put_pixel(P, texture_color);
+				put_pixel(P, lit_color);
 			}
 		}
 	}
