@@ -23,7 +23,7 @@ function init_zbuffer(buffer) {
 	for (var x=0; x<canvas.width; ++x) {
 		for (var y=0; y<canvas.height; ++y) {
 			var index = x + y*canvas.width;
-			buffer[index] = 0;
+			buffer[index] = -Infinity;
 		}
 	}
 }
