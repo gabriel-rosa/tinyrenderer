@@ -19,6 +19,15 @@ function clear_canvas(color) {
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
+function init_zbuffer(buffer) {
+	for (var x=0; x<canvas.width. ++x) {
+		for (var y=0; y<canvas.height; y++) {
+			var index = x + y*canvas.width;
+			buffer[index] = Infinity;
+		}
+	}
+}
+
 function put_pixel(p, color) {
 	if (p.x > 0 && p.y > 0 && p.x < canvas.width && p.y < canvas.height) {	
 		var index = 4*(p.x + (canvas.height - p.y)*canvas.width);
@@ -117,12 +126,9 @@ function render_triangle(vertices, color) {
 			P.z += vertices[1].z*bc.y;
 			P.z += vertices[2].z*bc.z;
 			
-			var index = 4*(P.x + (canvas.height - P.y)*canvas.width);
-			if (zbuffer_data.data[index+0] < P.z) {
-				zbuffer_data.data[index+0] = P.z;
-				zbuffer_data.data[index+1] = P.z;
-				zbuffer_data.data[index+2] = P.z;
-				
+			var index = P.x + P.y*canvas.width;
+			if (zbuffer_data[index] < P.z) {
+				zbuffer_data[index] = P.z;				
 				put_pixel(P, color);
 			}
 		}
@@ -134,7 +140,8 @@ canvas.height = 800;
 
 clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-zbuffer_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+zbuffer_data = new Array(canvas.width * canvas.height);
+init_zbuffer(zbuffer_data);
 
 /*var t0 = [new Vector2(10, 70),   new Vector2(50, 160),  new Vector2(70, 80)]; 
 var t1 = [new Vector2(180, 50),  new Vector2(150, 1),   new Vector2(70, 180)]; 
