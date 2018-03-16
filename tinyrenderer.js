@@ -164,7 +164,7 @@ function render_triangle(vertices, uv_coords, color) {
 			var index = Math.floor( P.x + P.y*canvas.width );
 			if (zbuffer_data[index] < P.z) {
 				zbuffer_data[index] = P.z;				
-				put_pixel(P, lit_color);
+				put_pixel(P, texture_color);
 			}
 		}
 	}
@@ -194,16 +194,14 @@ var test_model = new Model();
 texture_image.open( "images/african_head_diffuse.tga", function(data){
 	texture_data = texture_image.getImageData();
 	
-	canvas.width = texture_data.width;
+	/*canvas.width = texture_data.width;
 	canvas.height = texture_data.height;
-	ctx.putImageData(texture_data, 0, 0);
+	ctx.putImageData(texture_data, 0, 0);*/
 	
-	//test_model.open("models/african_head.obj", mesh_onload);
+	test_model.open("models/african_head.obj", mesh_onload);
 });
 
 function mesh_onload(data) {
-	console.log(test_model);
-	
 	var screen_coords = [new Vector2(0,0), new Vector2(0,0), new Vector2(0,0)];
 	var light_dir = new Vector3(0, 0, 1);
 
