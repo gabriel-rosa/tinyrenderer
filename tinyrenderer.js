@@ -195,6 +195,8 @@ texture_image.open( "images/african_head_diffuse.tga", function(data){
 });
 
 function mesh_onload(data) {
+	console.log(test_model);
+	
 	var screen_coords = [new Vector2(0,0), new Vector2(0,0), new Vector2(0,0)];
 	var light_dir = new Vector3(0, 0, 1);
 
