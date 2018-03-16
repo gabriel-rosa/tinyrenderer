@@ -129,10 +129,13 @@ function sample_texture(uv_coords, barycentric_coords) {
 	uv.x *= texture_data.width;
 	uv.y *= texture_data.height;
 	
+	uv.x = Math.floor(uv.x);
+	uv.y = Math.floor(uv.y);
+	
 	if (!(uv.x > 0 && uv.y > 0 && uv.x < texture_data.width && uv.y < texture_data.height))
 		return new Color(0, 0, 0);
 		
-	var index = Math.floor(uv.x + uv.y*texture_data.width);
+	var index = 4*(uv.x + (texture_data.height-uv.y)*texture_data.width);
 	var r = texture_data.data[index+0];
 	var g = texture_data.data[index+1];
 	var b = texture_data.data[index+2];
