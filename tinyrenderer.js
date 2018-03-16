@@ -129,6 +129,9 @@ function sample_texture(uv_coords, barycentric_coords, texture) {
 	uv.x *= texture.width;
 	uv.y *= texture.height;
 	
+	if (!(uv.x > 0 && uv.y > 0 && uv.x < texture.width && uv.y < texture.height))
+		return new Color(0, 0, 0);
+		
 	var index = Math.floor(uv.x + uv.y*texture.width);
 	var r = texture.data[index+0];
 	var g = texture.data[index+1];
@@ -191,7 +194,11 @@ var test_model = new Model();
 texture_image.open( "images/african_head_diffuse.tga", function(data){
 	texture_data = texture_image.getImageData();
 	
-	test_model.open("models/african_head.obj", mesh_onload);
+	canvas.width = texture_data.width;
+	canvas.height = texture_data.height;
+	ctx.putImageData(texture_data, 0, 0);
+	
+	//test_model.open("models/african_head.obj", mesh_onload);
 });
 
 function mesh_onload(data) {
