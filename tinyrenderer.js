@@ -191,10 +191,10 @@ var test_model = new Model();
 texture_image.open( "images/african_head_diffuse.tga", function(data){
 	texture_data = texture_image.getImageData();
 	
-	test_model.open("models/african_head.obj", mesh_onload());
+	test_model.open("models/african_head.obj", mesh_onload);
 });
 
-function mesh_onload() {
+function mesh_onload(data) {
 	var screen_coords = [new Vector2(0,0), new Vector2(0,0), new Vector2(0,0)];
 	var light_dir = new Vector3(0, 0, 1);
 
