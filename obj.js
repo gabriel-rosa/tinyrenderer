@@ -42,11 +42,9 @@ Model.prototype.parse = function(raw_text) {
 	var vertices_normal = new Array();
 	var faces = new Array();
 
-	for (var i = 0; i < lines.length; ++i) {
+	for (var i = 0; i < lines.length; ++i) {		
 		// turn multiple spaces into single space so split works predictably
-		line.replace(/\s+/, ' '); 
-		
-		var line = lines[i].split(' ');
+		var line = lines[i].replace(/\s+/, ' ').split(' '); 
 
 		if (line.length != 4)
 			continue;				
