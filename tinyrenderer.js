@@ -137,6 +137,8 @@ function sample_texture(uv_coords, barycentric_coords) {
 	var g = texture_data.data[index+1];
 	var b = texture_data.data[index+2];
 	
+	console.log(index, r, g, b, uv.x, uv.y);
+	
 	return new Color(r, g, b);
 }
 
@@ -155,7 +157,6 @@ function render_triangle(vertices, uv_coords, color) {
 			P.z += vertices[1].z*bc.y;
 			P.z += vertices[2].z*bc.z;
 			
-			console.log(texture_data);
 			var texture_color = sample_texture(uv_coords, bc);
 			
 			var lit_color = new Color(texture_color.r*color.r/255,
