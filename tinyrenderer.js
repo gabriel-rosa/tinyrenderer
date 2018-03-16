@@ -116,7 +116,7 @@ function bbox_triangle(vertices) {
 	return [new Vector2(minX, minY), new Vector2(maxX, maxY)];
 }
 
-function sample_texture(uv_coords, barycentric_coords, texture) {
+function sample_texture(uv_coords, barycentric_coords) {
 	var uv = new Vector2(0, 0);
 			
 	uv.x += uv_coords[0].x*barycentric_coords.x;
@@ -126,16 +126,16 @@ function sample_texture(uv_coords, barycentric_coords, texture) {
 	uv.x += uv_coords[2].x*barycentric_coords.z;
 	uv.y += uv_coords[2].y*barycentric_coords.z;
 	
-	uv.x *= texture.width;
-	uv.y *= texture.height;
+	uv.x *= texture_data.width;
+	uv.y *= texture_data.height;
 	
-	if (!(uv.x > 0 && uv.y > 0 && uv.x < texture.width && uv.y < texture.height))
+	if (!(uv.x > 0 && uv.y > 0 && uv.x < texture_data.width && uv.y < texture_data.height))
 		return new Color(0, 0, 0);
 		
-	var index = Math.floor(uv.x + uv.y*texture.width);
-	var r = texture.data[index+0];
-	var g = texture.data[index+1];
-	var b = texture.data[index+2];
+	var index = Math.floor(uv.x + uv.y*texture_data.width);
+	var r = texture_data.data[index+0];
+	var g = texture_data.data[index+1];
+	var b = texture_data.data[index+2];
 	
 	return new Color(r, g, b);
 }
@@ -155,7 +155,8 @@ function render_triangle(vertices, uv_coords, color) {
 			P.z += vertices[1].z*bc.y;
 			P.z += vertices[2].z*bc.z;
 			
-			var texture_color = sample_texture(uv_coords, bc, texture_data);
+			console.log(texture_data);
+			var texture_color = sample_texture(uv_coords, bc);
 			
 			var lit_color = new Color(texture_color.r*color.r/255,
 						  texture_color.g*color.g/255,
