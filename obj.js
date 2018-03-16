@@ -48,6 +48,8 @@ Model.prototype.parse = function(raw_text) {
 		if (line.length != 4)
 			continue;
 		
+		console.log(line[0]);
+		
 		switch (line[0]) {
 			case 'v':
 				for (var j = 1; j < 4; ++j)
