@@ -181,16 +181,6 @@ image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 zbuffer_data = new Array(canvas.width * canvas.height);
 init_zbuffer(zbuffer_data);
 
-/*var t0 = [new Vector2(10, 70),   new Vector2(50, 160),  new Vector2(70, 80)]; 
-var t1 = [new Vector2(180, 50),  new Vector2(150, 1),   new Vector2(70, 180)]; 
-var t2 = [new Vector2(180, 150), new Vector2(120, 160), new Vector2(130, 180)]; 
-render_triangle(t0, new Color(255, 0, 0)); 
-render_triangle(t1, new Color(255, 255, 255)); 
-render_triangle(t2, new Color(0, 255, 0));
-ctx.putImageData(image_data, 0, 0);
-*/
-
-
 var texture_image = new TGA();
 var test_model = new Model();
 
