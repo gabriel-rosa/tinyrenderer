@@ -126,8 +126,6 @@ function render_triangle(vertices, color) {
 			P.z += vertices[1].z*bc.y;
 			P.z += vertices[2].z*bc.z;
 			
-			console.log(P.z);
-			
 			var index = Math.floor( P.x + P.y*canvas.width );
 			if (zbuffer_data[index] < P.z) {
 				zbuffer_data[index] = P.z;				
