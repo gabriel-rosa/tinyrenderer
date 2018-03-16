@@ -211,9 +211,9 @@ function mesh_onload(data) {
 		ind2 = test_model.faces[i].texture_inds.y;
 		ind3 = test_model.faces[i].texture_inds.z;
 
-		var uv_coords = [test_model.vertices_normal[ind1].copy(), 
-				 test_model.vertices_normal[ind2].copy(),
-				 test_model.vertices_normal[ind3].copy()];
+		var uv_coords = [test_model.vertices_texture[ind1].copy(),
+				 test_model.vertices_texture[ind2].copy(),
+				 test_model.vertices_texture[ind3].copy()];
 
 		for (var j=0; j<3; j++) {
 			screen_coords[j].x = Math.round((world_coords[j].x+1)*canvas.width/2);
