@@ -23,7 +23,7 @@ function init_zbuffer(buffer) {
 	for (var x=0; x<canvas.width; ++x) {
 		for (var y=0; y<canvas.height; ++y) {
 			var index = x + y*canvas.width;
-			buffer[index] = Infinity;
+			buffer[index] = 0;
 		}
 	}
 }
@@ -126,7 +126,7 @@ function render_triangle(vertices, color) {
 			P.z += vertices[1].z*bc.y;
 			P.z += vertices[2].z*bc.z;
 			
-			var index = P.x + P.y*canvas.width;
+			var index = Math.floor( P.x + P.y*canvas.width );
 			if (zbuffer_data[index] < P.z) {
 				zbuffer_data[index] = P.z;				
 				put_pixel(P, color);
