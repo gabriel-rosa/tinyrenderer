@@ -1,4 +1,4 @@
-var canvas, ctx, image_data;
+var canvas, ctx, image_data, zbuffer_data;
 canvas = document.createElement('canvas');
 ctx = canvas.getContext('2d');
 document.body.appendChild(canvas);
@@ -107,12 +107,24 @@ function render_triangle(vertices, color) {
 
 	for (var x = bbox[0].x; x < bbox[1].x; ++x) {
 		for (var y = bbox[0].y; y < bbox[1].y; ++y) {
-			var P = new Vector2(x, y);
+			var P = new Vector3(x, y, 0);
 			var bc = barycentric(vertices, P);
 			
 			if (bc === undefined || bc.x < 0 || bc.y < 0 ||  bc.z < 0) continue;
-
-			put_pixel(P, color);
+			
+			P.z = 0;
+			P.z += vertices[0].z*bc.x;
+			P.z += vertices[1].z*bc.y;
+			P.z += vertices[2].z*bc.z;
+			
+			var index = 4*(P.x + (canvas.height - P.y)*canvas.width);
+			if (zbuffer_data.data[index+0] < P.z) {
+				zbuffer_data.data[index+0] = P.z;
+				zbuffer_data.data[index+1] = P.z;
+				zbuffer_data.data[index+2] = P.z;
+				
+				put_pixel(P, color);
+			}
 		}
 	}
 }
@@ -122,7 +134,7 @@ canvas.height = 800;
 
 clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
+zbuffer_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
 /*var t0 = [new Vector2(10, 70),   new Vector2(50, 160),  new Vector2(70, 80)]; 
 var t1 = [new Vector2(180, 50),  new Vector2(150, 1),   new Vector2(70, 180)]; 
