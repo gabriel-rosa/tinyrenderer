@@ -198,11 +198,11 @@ var camera = {
 };
 
 var viewport = {
-	x: 0,
-	y: 0,
-	w: canvas.width,
-	h: canvas.height,
-	d: 2
+	x: canvas.width/8,
+	y: canvas.width/8,
+	w: canvas.width*3/4,
+	h: canvas.height*3/4,
+	d: 1
 };
 
 
@@ -269,8 +269,8 @@ function mesh_onload(data) {
 					      Math.floor(light_intensity*256), 
 					      Math.floor(light_intensity*256));
 			var screen_coords = world_to_screen(camera, viewport, world_coords);
-			render_solid_triangle(screen_coords, red);
-			//render_triangle(screen_coords, uv_coords, color);
+			//render_solid_triangle(screen_coords, red);
+			render_triangle(screen_coords, uv_coords, color);
 		}
 	}	
 
