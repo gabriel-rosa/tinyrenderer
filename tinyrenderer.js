@@ -149,23 +149,16 @@ function render_triangle(vertices, uv_coords, color) {
 function render_solid_triangle(vertices, color) {
 	var bbox = bbox_triangle(vertices);
 
+	console.log(vertices);
+
 	for (var x = bbox[0].x; x < bbox[1].x; ++x) {
 		for (var y = bbox[0].y; y < bbox[1].y; ++y) {
 			var P = new Vector3(x, y, 0);
 			var bc = barycentric(vertices, P);
 			
 			if (bc === undefined || bc.x < 0 || bc.y < 0 ||  bc.z < 0) continue;
-			
-			P.z = 0;
-			P.z += vertices[0].z*bc.x;
-			P.z += vertices[1].z*bc.y;
-			P.z += vertices[2].z*bc.z;
-			
-			var index = Math.floor( P.x + P.y*canvas.width );
-			if (zbuffer_data[index] < P.z) {
-				zbuffer_data[index] = P.z;				
-				put_pixel(P, color);
-			}
+									
+			put_pixel(P, color);
 		}
 	}
 }
@@ -190,8 +183,6 @@ function world_to_screen(camera, viewport, vertices) {
 
 		out_vertices[i] = new Vector3(aug_vertices[i].x / aug_vertices[i].w, aug_vertices[i].y / aug_vertices[i].w, aug_vertices[i].z / aug_vertices[i].w);
 	}
-
-	console.log(out_vertices);
 
 	return out_vertices;
 }
