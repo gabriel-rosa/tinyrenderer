@@ -226,13 +226,13 @@ function mat4inv(M) {
 
 	inv.data[0] = mat3det(new Mat3x3([m[5], m[9], m[13]], [m[6], m[10], m[14]], [m[7], m[11], m[15]])) / det;
 	inv.data[1] = mat3det(new Mat3x3([m[1], m[9], m[13]], [m[2], m[10], m[14]], [m[3], m[11], m[15]])) / det;
-	inv.data[2] = mat3det(new Mat3x3([m[1], m[5], m[13]], [m[2], m[6], m[14]],  [m[3], m[7], m[15]])) / det;
-	inv.data[3] = mat3det(new Mat3x3([m[1], m[5], m[9]],  [m[2], m[6], m[10]],  [m[3], m[7], m[11]])) / det;
+	inv.data[2] = mat3det(new Mat3x3([m[1], m[5], m[13]], [m[2], m[6], m[14]],  [m[3], m[7], m[15]]))  / det;
+	inv.data[3] = mat3det(new Mat3x3([m[1], m[5], m[9]],  [m[2], m[6], m[10]],  [m[3], m[7], m[11]]))  / det;
 
 	inv.data[4] = mat3det(new Mat3x3([m[4], m[8], m[12]], [m[6], m[10], m[14]], [m[7], m[11], m[15]])) / det;
 	inv.data[5] = mat3det(new Mat3x3([m[0], m[8], m[12]], [m[2], m[10], m[14]], [m[3], m[11], m[15]])) / det;
-	inv.data[6] = mat3det(new Mat3x3([m[0], m[4], m[12]], [m[2], m[6], m[14]],  [m[3], m[7], m[15]])) / det;
-	inv.data[7] = mat3det(new Mat3x3([m[0], m[4], m[8]],  [m[2], m[6], m[10]],  [m[3], m[7], m[11]])) / det;
+	inv.data[6] = mat3det(new Mat3x3([m[0], m[4], m[12]], [m[2], m[6], m[14]],  [m[3], m[7], m[15]]))  / det;
+	inv.data[7] = mat3det(new Mat3x3([m[0], m[4], m[8]],  [m[2], m[6], m[10]],  [m[3], m[7], m[11]]))  / det;
 	
 	inv.data[8] = mat3det(new Mat3x3([m[4], m[8], m[12]], [m[5], m[9], m[13]], [m[7], m[11], m[15]])) / det;
 	inv.data[9] = mat3det(new Mat3x3([m[0], m[8], m[12]], [m[1], m[9], m[13]], [m[3], m[11], m[15]])) / det;
@@ -241,10 +241,24 @@ function mat4inv(M) {
 
 	inv.data[12] = mat3det(new Mat3x3([m[4], m[8], m[12]], [m[5], m[9], m[13]], [m[6], m[10], m[14]])) / det;
 	inv.data[13] = mat3det(new Mat3x3([m[0], m[8], m[12]], [m[1], m[9], m[13]], [m[2], m[10], m[14]])) / det;
-	inv.data[14] = mat3det(new Mat3x3([m[0], m[4], m[12]], [m[1], m[5], m[13]], [m[2], m[6], m[14]])) / det;
-	inv.data[15] = mat3det(new Mat3x3([m[0], m[4], m[8]],  [m[1], m[5], m[9]],  [m[2], m[6], m[10]])) / det;
+	inv.data[14] = mat3det(new Mat3x3([m[0], m[4], m[12]], [m[1], m[5], m[13]], [m[2], m[6], m[14]]))  / det;
+	inv.data[15] = mat3det(new Mat3x3([m[0], m[4], m[8]],  [m[1], m[5], m[9]],  [m[2], m[6], m[10]]))  / det;
 
 	return inv;
+}
+
+
+function mat4transpose(M) {
+	var transpose = new Mat4x4;
+
+	var m = M.data;
+
+	transpose.data[0] = m[0];  transpose.data[4] = m[1];  transpose.data[8] = m[2];   transpose.data[12] = m[3];
+	transpose.data[1] = m[4];  transpose.data[5] = m[5];  transpose.data[9] = m[6];   transpose.data[13] = m[7];
+	transpose.data[2] = m[8];  transpose.data[6] = m[9];  transpose.data[10] = m[10]; transpose.data[14] = m[11];
+	transpose.data[3] = m[12]; transpose.data[7] = m[13]; transpose.data[11] = m[14]; transpose.data[15] = m[15];
+
+	return transpose;
 }
 
 function dot(v1, v2) {

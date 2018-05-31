@@ -1,4 +1,4 @@
-var canvas, ctx, image_data, zbuffer_data, texture_data, camera, viewport, projection, bypass_zbuffer;
+var canvas, ctx, image_data, zbuffer_data, texture_data, camera, viewport, projection, modelview, bypass_zbuffer;
 canvas = document.createElement('canvas');
 ctx = canvas.getContext('2d');
 document.body.appendChild(canvas);
@@ -141,8 +141,8 @@ function render_triangle(vertices, uv_coords, color) {
 			}
 			
 			var lit_color = new Color(texture_color.r*color.r/255,
-						  texture_color.g*color.g/255,
-						  texture_color.b*color.b/255);
+									texture_color.g*color.g/255,
+									texture_color.b*color.b/255);
 			
 			var index = Math.floor( P.x + P.y*canvas.width );
 			if (zbuffer_data[index] < P.z) {
@@ -168,19 +168,19 @@ function render_solid_triangle(vertices, color) {
 	}
 }
 
-function world_to_screen(camera, viewport, projection, vertices) {
+function world_to_screen(modelview, viewport, projection, vertices) {
 	var out_vertices = new Array(3);
-
-	
-	
 
 	var aug_vertices = new Array(3);
 	for (var i=0; i<3; ++i) {
 		aug_vertices[i] = new Vector4(vertices[i].x, vertices[i].y, vertices[i].z, 1);
+		aug_vertices[i] = mat4vec(modelview, aug_vertices[i]);
 		aug_vertices[i] = mat4vec(projection, aug_vertices[i]);
 		aug_vertices[i] = mat4vec(viewport, aug_vertices[i]);
 
-		out_vertices[i] = new Vector3(aug_vertices[i].x / aug_vertices[i].w, aug_vertices[i].y / aug_vertices[i].w, aug_vertices[i].z / aug_vertices[i].w);
+		out_vertices[i] = new Vector3(aug_vertices[i].x / aug_vertices[i].w, 
+									aug_vertices[i].y / aug_vertices[i].w, 
+									aug_vertices[i].z / aug_vertices[i].w);
 
 		// without rounding things go haywire
 		out_vertices[i].x = Math.round(out_vertices[i].x);
@@ -190,24 +190,107 @@ function world_to_screen(camera, viewport, projection, vertices) {
 	return out_vertices;
 }
 
+function clear() {
+	clear_canvas('black');
+	image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);	
+	init_zbuffer(zbuffer_data);
+}
+
+function lookat(camera) {
+	var z = new Vector3(camera.eye.x-camera.center.x, camera.eye.y-camera.center.y, camera.eye.z-camera.center.z);
+	z.normalize();
+	var x = cross(camera.up, z);
+	x.normalize();
+	var y = cross(z, x);
+	y.normalize();
+
+
+	var minv = new Mat4x4;
+	var tr = new Mat4x4;
+
+	minv.data[0] = x.x; minv.data[1] = x.y; minv.data[2] = x.z;
+	minv.data[4] = y.x; minv.data[5] = y.y; minv.data[6] = y.z;
+	minv.data[8] = z.x; minv.data[9] = z.y; minv.data[10] = z.z;
+	tr.data[3] = -camera.center.x; tr.data[7] = -camera.center.y; tr.data[11] = -camera.center.z;
+
+	var modelview = minv;
+	modelview.mult(tr);
+
+	return modelview;
+}
+
+function render_model(model) {
+	clear();	
+
+	var cam_proj = new Vector3(camera.eye.x-camera.center.x, camera.eye.y-camera.center.y, camera.eye.z-camera.center.z);
+	projection.data[14] = -1/Math.sqrt(cam_proj.x*cam_proj.x + cam_proj.y*cam_proj.y + cam_proj.z*cam_proj.z);
+
+	modelview = lookat(camera);
+
+	var light_dir = new Vector3(0, 0, 1);
+
+	for (var i = 0; i < model.faces.length; ++i) {					
+		var ind1 = model.faces[i].vertex_inds.x;
+		var ind2 = model.faces[i].vertex_inds.y;
+		var ind3 = model.faces[i].vertex_inds.z;
+
+		var world_coords = [model.vertices[ind1].copy(), 
+				    		model.vertices[ind2].copy(),
+				   			model.vertices[ind3].copy()];
+		
+		ind1 = model.faces[i].texture_inds.x;
+		ind2 = model.faces[i].texture_inds.y;
+		ind3 = model.faces[i].texture_inds.z;
+
+		var uv_coords = [model.vertices_texture[ind1].copy(),
+						model.vertices_texture[ind2].copy(),
+						model.vertices_texture[ind3].copy()];
+
+		var v1 = new Vector3(world_coords[2].x-world_coords[0].x, 
+				    		world_coords[2].y-world_coords[0].y,
+				    		world_coords[2].z-world_coords[0].z);
+		var v2 = new Vector3(world_coords[2].x-world_coords[1].x, 
+				    		world_coords[2].y-world_coords[1].y,
+				    		world_coords[2].z-world_coords[1].z);
+		var n = cross(v1, v2);
+		n.normalize();
+
+		var light_intensity = n.x*light_dir.x + n.y*light_dir.y + n.z*light_dir.z;
+
+		if (light_intensity > 0) {
+			var color = new Color(Math.floor(light_intensity*256), 
+					      Math.floor(light_intensity*256), 
+					      Math.floor(light_intensity*256));
+			var screen_coords = world_to_screen(modelview, viewport, projection, world_coords);
+			//render_solid_triangle(screen_coords, red);
+			render_triangle(screen_coords, uv_coords, color);
+		}
+	}	
+
+	ctx.putImageData(image_data, 0, 0);
+}
+
 canvas.width = 800;
 canvas.height = 800;
 
 bypass_zbuffer = false;
 
-clear_canvas('black');
-image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 zbuffer_data = new Array(canvas.width * canvas.height);
-init_zbuffer(zbuffer_data);
 
-camera = new Vector3(0, 0, 3);
+clear();
+
+camera = {
+	eye: new Vector3(1, 1, 3),
+	center: new Vector3(0, 0, 0),
+	up: new Vector3(0, 1, 0)
+};
 
 var vp = {
 	x: canvas.width/8,
 	y: canvas.height/8,
 	w: canvas.width*3/4,
 	h: canvas.height*3/4,
-	d: 1
+	d: 255
 };
 
 viewport = new Mat4x4;
@@ -218,18 +301,9 @@ viewport.data[0] = vp.w/2;
 viewport.data[5] = vp.h/2;
 viewport.data[10] = vp.d/2;
 
-projection = new Mat4x4([1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,-1/camera.z,1]);
+projection = new Mat4x4;
 
-/*
-var world_coords = [new Vector3(0,0,0), new Vector3(0.5,0,-1), new Vector3(0,0.5,-0.5)];
-
-//var screen_coords = world_to_screen(camera, viewport, projection, world_coords);
-var screen_coords = [new Vector3(328,315,1.51), new Vector3(364,292,1.45), new Vector3(338,343,1.43)];
-
-render_solid_triangle(screen_coords, red);
-
-ctx.putImageData(image_data, 0, 0);
-*/
+modelview = new Mat4x4;
 
 
 var texture_image = new TGA();
@@ -239,55 +313,13 @@ var test_model = new Model();
 texture_image.open( "images/african_head_diffuse.tga", function(data){
 	texture_data = texture_image.getImageData();
 	
-	//canvas.width = texture_data.width;
-	//canvas.height = texture_data.height;
-	//ctx.putImageData(texture_data, 0, 0);
+	/*canvas.width = texture_data.width;
+	canvas.height = texture_data.height;
+	ctx.putImageData(texture_data, 0, 0);*/
 	
 	test_model.open("models/african_head.obj", mesh_onload);
 });
 
 function mesh_onload(data) {
-	var light_dir = new Vector3(0, 0, 1);
-
-	//var i=130;
-
-	for (var i = 0; i < test_model.faces.length; ++i) {					
-		var ind1 = test_model.faces[i].vertex_inds.x;
-		var ind2 = test_model.faces[i].vertex_inds.y;
-		var ind3 = test_model.faces[i].vertex_inds.z;
-
-		var world_coords = [test_model.vertices[ind1].copy(), 
-				    test_model.vertices[ind2].copy(),
-				    test_model.vertices[ind3].copy()];
-		
-		ind1 = test_model.faces[i].texture_inds.x;
-		ind2 = test_model.faces[i].texture_inds.y;
-		ind3 = test_model.faces[i].texture_inds.z;
-
-		var uv_coords = [test_model.vertices_texture[ind1].copy(),
-				 test_model.vertices_texture[ind2].copy(),
-				 test_model.vertices_texture[ind3].copy()];
-
-		var v1 = new Vector3(world_coords[2].x-world_coords[0].x, 
-				     world_coords[2].y-world_coords[0].y,
-				     world_coords[2].z-world_coords[0].z);
-		var v2 = new Vector3(world_coords[2].x-world_coords[1].x, 
-				     world_coords[2].y-world_coords[1].y,
-				     world_coords[2].z-world_coords[1].z);
-		var n = cross(v1, v2);
-		n.normalize();
-
-		var light_intensity = n.x*light_dir.x + n.y*light_dir.y + n.z*light_dir.z;
-
-		if (light_intensity > 0) {
-			var color = new Color(Math.floor(light_intensity*256), 
-					      Math.floor(light_intensity*256), 
-					      Math.floor(light_intensity*256));
-			var screen_coords = world_to_screen(camera, viewport, projection, world_coords);
-			//render_solid_triangle(screen_coords, red);
-			render_triangle(screen_coords, uv_coords, color);
-		}
-	}	
-
-	ctx.putImageData(image_data, 0, 0);
+	render_model(test_model);
 }
