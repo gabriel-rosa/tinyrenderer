@@ -1,4 +1,4 @@
-var canvas, ctx, image_data, zbuffer_data, texture_data, camera, viewport, bypass_zbuffer;
+var canvas, ctx, image_data, zbuffer_data, texture_data, camera, viewport, projection, bypass_zbuffer;
 canvas = document.createElement('canvas');
 ctx = canvas.getContext('2d');
 document.body.appendChild(canvas);
@@ -168,23 +168,17 @@ function render_solid_triangle(vertices, color) {
 	}
 }
 
-function world_to_screen(camera, viewport, vertices) {
+function world_to_screen(camera, viewport, projection, vertices) {
 	var out_vertices = new Array(3);
 
-	var proj = new Mat4x4([1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,-1/camera.z,1]);
-	var vp = new Mat4x4;
-	vp.data[3] = viewport.x+viewport.w/2;
-	vp.data[7] = viewport.y+viewport.h/2;
-	vp.data[11] = viewport.d/2;
-	vp.data[0] = viewport.w/2;
-	vp.data[5] = viewport.h/2;
-	vp.data[10] = viewport.d/2;
+	
+	
 
 	var aug_vertices = new Array(3);
 	for (var i=0; i<3; ++i) {
 		aug_vertices[i] = new Vector4(vertices[i].x, vertices[i].y, vertices[i].z, 1);
-		aug_vertices[i] = mat4vec(proj, aug_vertices[i]);
-		aug_vertices[i] = mat4vec(vp, aug_vertices[i]);
+		aug_vertices[i] = mat4vec(projection, aug_vertices[i]);
+		aug_vertices[i] = mat4vec(viewport, aug_vertices[i]);
 
 		out_vertices[i] = new Vector3(aug_vertices[i].x / aug_vertices[i].w, aug_vertices[i].y / aug_vertices[i].w, aug_vertices[i].z / aug_vertices[i].w);
 
@@ -199,6 +193,8 @@ function world_to_screen(camera, viewport, vertices) {
 canvas.width = 800;
 canvas.height = 800;
 
+bypass_zbuffer = false;
+
 clear_canvas('black');
 image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 zbuffer_data = new Array(canvas.width * canvas.height);
@@ -206,7 +202,7 @@ init_zbuffer(zbuffer_data);
 
 camera = new Vector3(0, 0, 3);
 
-viewport = {
+var vp = {
 	x: canvas.width/8,
 	y: canvas.height/8,
 	w: canvas.width*3/4,
@@ -214,12 +210,20 @@ viewport = {
 	d: 1
 };
 
-bypass_zbuffer = false;
+viewport = new Mat4x4;
+viewport.data[3] = vp.x+vp.w/2;
+viewport.data[7] = vp.y+vp.h/2;
+viewport.data[11] = vp.d/2;
+viewport.data[0] = vp.w/2;
+viewport.data[5] = vp.h/2;
+viewport.data[10] = vp.d/2;
+
+projection = new Mat4x4([1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,-1/camera.z,1]);
 
 /*
 var world_coords = [new Vector3(0,0,0), new Vector3(0.5,0,-1), new Vector3(0,0.5,-0.5)];
 
-//var screen_coords = world_to_screen(camera, viewport, world_coords);
+//var screen_coords = world_to_screen(camera, viewport, projection, world_coords);
 var screen_coords = [new Vector3(328,315,1.51), new Vector3(364,292,1.45), new Vector3(338,343,1.43)];
 
 render_solid_triangle(screen_coords, red);
@@ -279,7 +283,7 @@ function mesh_onload(data) {
 			var color = new Color(Math.floor(light_intensity*256), 
 					      Math.floor(light_intensity*256), 
 					      Math.floor(light_intensity*256));
-			var screen_coords = world_to_screen(camera, viewport, world_coords);
+			var screen_coords = world_to_screen(camera, viewport, projection, world_coords);
 			//render_solid_triangle(screen_coords, red);
 			render_triangle(screen_coords, uv_coords, color);
 		}
