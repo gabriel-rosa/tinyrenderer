@@ -170,19 +170,25 @@ function render_solid_triangle(vertices, color) {
 	}
 }
 
-function world_to_screen(camera, vertices) {
+function world_to_screen(camera, viewport, vertices) {
 	var out_vertices = new Array(3);
 
 	var transform = new Mat4x4([1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,-1/camera.c,1]);
+	var vp = new Mat4x4;
+	vp.data[3] = viewport.x+viewport.w/2;
+	vp.data[7] = viewport.y+viewport.h/2;
+	vp.data[11] = viewport.d/2;
+	vp.data[0] = viewport.w/2;
+	vp.data[5] = viewport.h/2;
+	vp.data[10] = viewport.d/2;
+
 	var aug_vertices = new Array(3);
 	for (var i=0; i<3; ++i) {
 		aug_vertices[i] = new Vector4(vertices[i].x, vertices[i].y, vertices[i].z, 1);
 		aug_vertices[i] = mat4vec(transform, aug_vertices[i]);
+		aug_vertices[i] = mat4vec(vp, aug_vertices[i]);
 
 		out_vertices[i] = new Vector3(aug_vertices[i].x / aug_vertices[i].w, aug_vertices[i].y / aug_vertices[i].w, aug_vertices[i].z / aug_vertices[i].w);
-
-		out_vertices[i].x = Math.round((out_vertices[i].x+1)*canvas.width/2);
-		out_vertices[i].y = Math.round((out_vertices[i].y+1)*canvas.height/2);
 	}
 
 	return out_vertices;
@@ -200,12 +206,19 @@ var camera = {
 	c: 3
 };
 
+var viewport = {
+	x: canvas.width/8,
+	y: canvas.height/8,
+	w: canvas.width*3/4,
+	h: canvas.height*3/4,
+	d: 255
+};
+
 /*
 var red = new Color(255, 0, 0);
 var world_coords = [new Vector3(0,0,0), new Vector3(0.5,0,-1), new Vector3(0,0.5,-0.5)];
 
-
-var screen_coords = world_to_screen(camera, world_coords);
+var screen_coords = world_to_screen(camera, viewport, world_coords);
 
 render_solid_triangle(screen_coords, red);
 
@@ -247,7 +260,7 @@ function mesh_onload(data) {
 				 test_model.vertices_texture[ind2].copy(),
 				 test_model.vertices_texture[ind3].copy()];
 
-		var screen_coords = world_to_screen(camera, world_coords);
+		var screen_coords = world_to_screen(camera, viewport, world_coords);
 
 		var v1 = new Vector3(world_coords[2].x-world_coords[0].x, 
 				     world_coords[2].y-world_coords[0].y,
