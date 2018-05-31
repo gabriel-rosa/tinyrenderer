@@ -203,7 +203,7 @@ zbuffer_data = new Array(canvas.width * canvas.height);
 init_zbuffer(zbuffer_data);
 
 var camera = {
-	c: 3
+	c: 2
 };
 
 var viewport = {
