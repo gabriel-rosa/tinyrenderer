@@ -24,8 +24,10 @@ function init_zbuffer(buffer) {
 }
 
 function put_pixel(p, color) {
-	if (p.x > 0 && p.y > 0 && p.x < canvas.width && p.y < canvas.height) {	
-		var index = 4*(Math.round(p.x) + (canvas.height - Math.round(p.y))*canvas.width);
+	var x = Math.round(p.x);
+	var y = Math.round(p.y);
+	if (x > 0 && y > 0 && x < canvas.width && y < canvas.height) {	
+		var index = 4*(x + (canvas.height - y)*canvas.width);
 		image_data.data[index + 0] = color.r;
 		image_data.data[index + 1] = color.g;
 		image_data.data[index + 2] = color.b;
