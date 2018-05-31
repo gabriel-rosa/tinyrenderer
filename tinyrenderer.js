@@ -1,4 +1,4 @@
-var canvas, ctx, image_data, zbuffer_data, texture_data;
+var canvas, ctx, image_data, zbuffer_data, texture_data, camera, viewport, bypass_zbuffer;
 canvas = document.createElement('canvas');
 ctx = canvas.getContext('2d');
 document.body.appendChild(canvas);
@@ -134,6 +134,11 @@ function render_triangle(vertices, uv_coords, color) {
 			P.z += vertices[2].z*bc.z;
 			
 			var texture_color = sample_texture(uv_coords, bc);
+
+			if (bypass_zbuffer) {
+				put_pixel(P, texture_color);
+				continue;
+			}
 			
 			var lit_color = new Color(texture_color.r*color.r/255,
 						  texture_color.g*color.g/255,
@@ -158,7 +163,7 @@ function render_solid_triangle(vertices, color) {
 
 			if (bc === undefined || bc.x < 0 || bc.y < 0 ||  bc.z < 0) continue;								
 
-			put_pixel(P, color);
+			put_pixel(P, new Color(255, 0, 0));
 		}
 	}
 }
@@ -166,7 +171,7 @@ function render_solid_triangle(vertices, color) {
 function world_to_screen(camera, viewport, vertices) {
 	var out_vertices = new Array(3);
 
-	var proj = new Mat4x4([1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,-1/camera.c,1]);
+	var proj = new Mat4x4([1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,-1/camera.z,1]);
 	var vp = new Mat4x4;
 	vp.data[3] = viewport.x+viewport.w/2;
 	vp.data[7] = viewport.y+viewport.h/2;
@@ -178,10 +183,14 @@ function world_to_screen(camera, viewport, vertices) {
 	var aug_vertices = new Array(3);
 	for (var i=0; i<3; ++i) {
 		aug_vertices[i] = new Vector4(vertices[i].x, vertices[i].y, vertices[i].z, 1);
-		//aug_vertices[i] = mat4vec(proj, aug_vertices[i]);
+		aug_vertices[i] = mat4vec(proj, aug_vertices[i]);
 		aug_vertices[i] = mat4vec(vp, aug_vertices[i]);
 
 		out_vertices[i] = new Vector3(aug_vertices[i].x / aug_vertices[i].w, aug_vertices[i].y / aug_vertices[i].w, aug_vertices[i].z / aug_vertices[i].w);
+
+		// without rounding things go haywire
+		out_vertices[i].x = Math.round(out_vertices[i].x);
+		out_vertices[i].y = Math.round(out_vertices[i].y);
 	}
 
 	return out_vertices;
@@ -195,20 +204,18 @@ image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 zbuffer_data = new Array(canvas.width * canvas.height);
 init_zbuffer(zbuffer_data);
 
-var camera = {
-	c: 2
-};
+camera = new Vector3(0, 0, 3);
 
-var viewport = {
+viewport = {
 	x: canvas.width/8,
-	y: canvas.width/8,
+	y: canvas.height/8,
 	w: canvas.width*3/4,
 	h: canvas.height*3/4,
 	d: 1
 };
 
+bypass_zbuffer = false;
 
-var red = new Color(255, 0, 0);
 /*
 var world_coords = [new Vector3(0,0,0), new Vector3(0.5,0,-1), new Vector3(0,0.5,-0.5)];
 
@@ -237,6 +244,8 @@ texture_image.open( "images/african_head_diffuse.tga", function(data){
 
 function mesh_onload(data) {
 	var light_dir = new Vector3(0, 0, 1);
+
+	//var i=130;
 
 	for (var i = 0; i < test_model.faces.length; ++i) {					
 		var ind1 = test_model.faces[i].vertex_inds.x;
