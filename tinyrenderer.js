@@ -154,9 +154,7 @@ function render_solid_triangle(vertices, color) {
 			var P = new Vector3(x, y, 0);
 			var bc = barycentric(vertices, P);
 
-			if (bc === undefined || bc.x < 0 || bc.y < 0 ||  bc.z < 0) continue;
-									
-			console.log("drawing at", P.x, P.y, "with color", color);
+			if (bc === undefined || bc.x < 0 || bc.y < 0 ||  bc.z < 0) continue;								
 
 			put_pixel(P, color);
 		}
