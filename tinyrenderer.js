@@ -149,13 +149,13 @@ function render_triangle(vertices, uv_coords, color) {
 function render_solid_triangle(vertices, color) {
 	var bbox = bbox_triangle(vertices);
 
-	console.log(vertices);
-
 	for (var x = bbox[0].x; x < bbox[1].x; ++x) {
 		for (var y = bbox[0].y; y < bbox[1].y; ++y) {
 			var P = new Vector3(x, y, 0);
 			var bc = barycentric(vertices, P);
 			
+			console.log(bc);
+
 			if (bc === undefined || bc.x < 0 || bc.y < 0 ||  bc.z < 0) continue;
 									
 			put_pixel(P, color);
