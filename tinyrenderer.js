@@ -133,6 +133,9 @@ function render_triangle(vertices, uv_coords, color) {
 			
 			var texture_color = sample_texture(uv_coords, bc);
 			
+			put_pixel(P, texture_color);
+			continue;
+
 			var lit_color = new Color(texture_color.r*color.r/255,
 						  texture_color.g*color.g/255,
 						  texture_color.b*color.b/255);
@@ -191,6 +194,8 @@ function world_to_screen(camera, viewport, vertices) {
 		out_vertices[i] = new Vector3(aug_vertices[i].x / aug_vertices[i].w, aug_vertices[i].y / aug_vertices[i].w, aug_vertices[i].z / aug_vertices[i].w);
 	}
 
+	//console.log(out_vertices);
+
 	return out_vertices;
 }
 
@@ -211,7 +216,7 @@ var viewport = {
 	y: 0,
 	w: canvas.width,
 	h: canvas.height,
-	d: 1
+	d: 2
 };
 
 /*
