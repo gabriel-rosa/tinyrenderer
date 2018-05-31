@@ -166,7 +166,7 @@ function render_solid_triangle(vertices, color) {
 function world_to_screen(camera, viewport, vertices) {
 	var out_vertices = new Array(3);
 
-	var transform = new Mat4x4([1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,-1/camera.c,1]);
+	var proj = new Mat4x4([1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,-1/camera.c,1]);
 	var vp = new Mat4x4;
 	vp.data[3] = viewport.x+viewport.w/2;
 	vp.data[7] = viewport.y+viewport.h/2;
@@ -178,7 +178,7 @@ function world_to_screen(camera, viewport, vertices) {
 	var aug_vertices = new Array(3);
 	for (var i=0; i<3; ++i) {
 		aug_vertices[i] = new Vector4(vertices[i].x, vertices[i].y, vertices[i].z, 1);
-		aug_vertices[i] = mat4vec(transform, aug_vertices[i]);
+		//aug_vertices[i] = mat4vec(proj, aug_vertices[i]);
 		aug_vertices[i] = mat4vec(vp, aug_vertices[i]);
 
 		out_vertices[i] = new Vector3(aug_vertices[i].x / aug_vertices[i].w, aug_vertices[i].y / aug_vertices[i].w, aug_vertices[i].z / aug_vertices[i].w);
