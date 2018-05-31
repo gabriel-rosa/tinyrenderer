@@ -216,11 +216,13 @@ var viewport = {
 	d: 2
 };
 
-/*
+
 var red = new Color(255, 0, 0);
+/*
 var world_coords = [new Vector3(0,0,0), new Vector3(0.5,0,-1), new Vector3(0,0.5,-0.5)];
 
-var screen_coords = world_to_screen(camera, viewport, world_coords);
+//var screen_coords = world_to_screen(camera, viewport, world_coords);
+var screen_coords = [new Vector3(328,315,1.51), new Vector3(364,292,1.45), new Vector3(338,343,1.43)];
 
 render_solid_triangle(screen_coords, red);
 
@@ -262,8 +264,6 @@ function mesh_onload(data) {
 				 test_model.vertices_texture[ind2].copy(),
 				 test_model.vertices_texture[ind3].copy()];
 
-		var screen_coords = world_to_screen(camera, viewport, world_coords);
-
 		var v1 = new Vector3(world_coords[2].x-world_coords[0].x, 
 				     world_coords[2].y-world_coords[0].y,
 				     world_coords[2].z-world_coords[0].z);
@@ -279,7 +279,9 @@ function mesh_onload(data) {
 			var color = new Color(Math.floor(light_intensity*256), 
 					      Math.floor(light_intensity*256), 
 					      Math.floor(light_intensity*256));
-			render_triangle(screen_coords, uv_coords, color);
+			var screen_coords = world_to_screen(camera, viewport, world_coords);
+			render_solid_triangle(screen_coords, red);
+			//render_triangle(screen_coords, uv_coords, color);
 		}
 	}	
 
