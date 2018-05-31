@@ -153,11 +153,11 @@ function render_solid_triangle(vertices, color) {
 		for (var y = bbox[0].y; y < bbox[1].y; ++y) {
 			var P = new Vector3(x, y, 0);
 			var bc = barycentric(vertices, P);
-			
-			console.log(bc);
 
 			if (bc === undefined || bc.x < 0 || bc.y < 0 ||  bc.z < 0) continue;
 									
+			console.log("drawing at", P.x, P.y, "with color", color);
+
 			put_pixel(P, color);
 		}
 	}
