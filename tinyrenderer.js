@@ -207,10 +207,10 @@ var camera = {
 };
 
 var viewport = {
-	x: canvas.width/8,
-	y: canvas.height/8,
-	w: canvas.width*3/4,
-	h: canvas.height*3/4,
+	x: 0,
+	y: 0,
+	w: canvas.width,
+	h: canvas.height,
 	d: 1
 };
 
