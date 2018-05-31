@@ -211,7 +211,7 @@ var viewport = {
 	y: canvas.height/8,
 	w: canvas.width*3/4,
 	h: canvas.height*3/4,
-	d: 255
+	d: 1
 };
 
 /*
