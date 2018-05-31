@@ -1,21 +1,3 @@
-var Vector3 = function(x, y, z) {
-	this.x = x;
-	this.y = y;
-	this.z = z;
-};
-
-Vector3.prototype.copy = function() {
-	var v_out = new Vector3(this.x, this.y, this.z);
-	return v_out;
-};
-
-Vector3.prototype.normalize = function() {
-	var length = Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
-	this.x /= length;
-	this.y /= length;
-	this.z /= length;
-};
-
 var Face = function(vertex_inds, texture_inds, normal_inds) {
 	this.vertex_inds = vertex_inds;
 	this.texture_inds = texture_inds;

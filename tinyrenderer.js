@@ -3,16 +3,6 @@ canvas = document.createElement('canvas');
 ctx = canvas.getContext('2d');
 document.body.appendChild(canvas);
 
-var Vector2 = function(x, y) {
-	this.x = x;
-	this.y = y;
-};
-
-Vector2.prototype.copy = function() {
-	var v_out = new Vector2(this.x, this.y);
-	return v_out;
-}
-
 var Color = function(r, g, b) {
 	this.r = r;
 	this.g = g;
@@ -76,23 +66,6 @@ function render_line(p1_, p2_, color) {
 		else
 			put_pixel(new Vector2(p1.x+x, y), color);
 	}
-}
-
-function dot(v1, v2) {
-	var out = 0;
-	
-	for (var i = 0; i < v1.length; ++i)
-		out += v1[i]*v2[i];
-
-	return out;
-}
-
-function cross(v1, v2) {
-	var s1 = v1.y*v2.z - v1.z*v2.y;
-	var s2 = v1.z*v2.x - v1.x*v2.z;
-	var s3 = v1.x*v2.y - v1.y*v2.x;
-
-	return new Vector3(s1, s2, s3);
 }
 
 function barycentric(vertices, P) {
@@ -173,6 +146,48 @@ function render_triangle(vertices, uv_coords, color) {
 	}
 }
 
+function render_solid_triangle(vertices, color) {
+	var bbox = bbox_triangle(vertices);
+
+	for (var x = bbox[0].x; x < bbox[1].x; ++x) {
+		for (var y = bbox[0].y; y < bbox[1].y; ++y) {
+			var P = new Vector3(x, y, 0);
+			var bc = barycentric(vertices, P);
+			
+			if (bc === undefined || bc.x < 0 || bc.y < 0 ||  bc.z < 0) continue;
+			
+			P.z = 0;
+			P.z += vertices[0].z*bc.x;
+			P.z += vertices[1].z*bc.y;
+			P.z += vertices[2].z*bc.z;
+			
+			var index = Math.floor( P.x + P.y*canvas.width );
+			if (zbuffer_data[index] < P.z) {
+				zbuffer_data[index] = P.z;				
+				put_pixel(P, color);
+			}
+		}
+	}
+}
+
+function world_to_screen(camera, vertices) {
+	var out_vertices = new Array(3);
+
+	var transform = new Mat4x4([1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,-1/camera.c,1]);
+	var aug_vertices = new Array(3);
+	for (var i=0; i<3; ++i) {
+		aug_vertices[i] = new Vector4(vertices[i].x, vertices[i].y, vertices[i].z, 1);
+		aug_vertices[i] = mat4vec(transform, aug_vertices[i]);
+
+		out_vertices[i] = new Vector3(aug_vertices[i].x / aug_vertices[i].w, aug_vertices[i].y / aug_vertices[i].w, aug_vertices[i].z / aug_vertices[i].w);
+
+		out_vertices[i].x = Math.round((out_vertices[i].x+1)*canvas.width/2);
+		out_vertices[i].y = Math.round((out_vertices[i].y+1)*canvas.height/2);
+	}
+
+	return out_vertices;
+}
+
 canvas.width = 800;
 canvas.height = 800;
 
@@ -181,21 +196,38 @@ image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
 zbuffer_data = new Array(canvas.width * canvas.height);
 init_zbuffer(zbuffer_data);
 
+var camera = {
+	c: 3
+};
+
+/*
+var red = new Color(255, 0, 0);
+var world_coords = [new Vector3(0,0,0), new Vector3(0.5,0,-1), new Vector3(0,0.5,-0.5)];
+
+
+var screen_coords = world_to_screen(camera, world_coords);
+
+render_solid_triangle(screen_coords, red);
+
+ctx.putImageData(image_data, 0, 0);
+*/
+
+
 var texture_image = new TGA();
 var test_model = new Model();
+
 
 texture_image.open( "images/african_head_diffuse.tga", function(data){
 	texture_data = texture_image.getImageData();
 	
-	/*canvas.width = texture_data.width;
-	canvas.height = texture_data.height;
-	ctx.putImageData(texture_data, 0, 0);*/
+	//canvas.width = texture_data.width;
+	//canvas.height = texture_data.height;
+	//ctx.putImageData(texture_data, 0, 0);
 	
 	test_model.open("models/african_head.obj", mesh_onload);
 });
 
 function mesh_onload(data) {
-	var screen_coords = [new Vector2(0,0), new Vector2(0,0), new Vector2(0,0)];
 	var light_dir = new Vector3(0, 0, 1);
 
 	for (var i = 0; i < test_model.faces.length; ++i) {					
@@ -215,11 +247,7 @@ function mesh_onload(data) {
 				 test_model.vertices_texture[ind2].copy(),
 				 test_model.vertices_texture[ind3].copy()];
 
-		for (var j=0; j<3; j++) {
-			screen_coords[j].x = Math.round((world_coords[j].x+1)*canvas.width/2);
-			screen_coords[j].y = Math.round((world_coords[j].y+1)*canvas.height/2);
-			screen_coords[j].z = world_coords[j].z;
-		}
+		var screen_coords = world_to_screen(camera, world_coords);
 
 		var v1 = new Vector3(world_coords[2].x-world_coords[0].x, 
 				     world_coords[2].y-world_coords[0].y,
