@@ -100,8 +100,36 @@ Model.prototype.parse = function(raw_text) {
 	this.faces = faces;
 };
 
-Model.prototype.open = function(path, callback)
-{
+Model.prototype.get_vert = function(i_face, n_vert) {
+	var inds = [this.faces[i_face].vertex_inds.x, this.faces[i_face].vertex_inds.y, this.faces[i_face].vertex_inds.z];
+	var ind = inds[n_vert];
+
+	var vertex = this.vertices[ind];
+
+	var vert = new Vector4(vertex.x, vertex.y, vertex.z, 1);
+
+	return vert;
+};
+
+Model.prototype.get_normal = function(i_face, n_vert) {
+	var inds = [this.faces[i_face].normal_inds.x, this.faces[i_face].normal_inds.y, this.faces[i_face].normal_inds.z];
+	var ind = inds[n_vert];
+
+	var normal = this.vertices_normal[ind];
+
+	return normal;
+};
+
+Model.prototype.get_uv = function(i_face, n_vert) {
+	var inds = [this.faces[i_face].texture_inds.x, this.faces[i_face].texture_inds.y, this.faces[i_face].texture_inds.z];
+	var ind = inds[n_vert];
+
+	var uv = this.vertices_texture[ind];
+
+	return uv;
+};
+
+Model.prototype.open = function(path, callback) {
 	var model = this;
 	var req = new XMLHttpRequest();
 	req.open('GET', path, true);

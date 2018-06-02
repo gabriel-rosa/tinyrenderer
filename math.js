@@ -19,6 +19,10 @@ Vector3.prototype.copy = function() {
 	return v_out;
 };
 
+Vector3.prototype.dot = function(v2) {
+	return this.x*v2.x + this.y*v2.y + this.z*v2.z;
+}
+
 Vector3.prototype.normalize = function() {
 	var length = Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
 	this.x /= length;
@@ -259,15 +263,6 @@ function mat4transpose(M) {
 	transpose.data[3] = m[12]; transpose.data[7] = m[13]; transpose.data[11] = m[14]; transpose.data[15] = m[15];
 
 	return transpose;
-}
-
-function dot(v1, v2) {
-	var out = 0;
-	
-	for (var i = 0; i < v1.length; ++i)
-		out += v1[i]*v2[i];
-
-	return out;
 }
 
 function cross(v1, v2) {
