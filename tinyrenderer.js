@@ -72,16 +72,19 @@ var shader = {
 
 	varying_normal: new Array(3),
 	varying_uv: new Array(3),
+	varying_pos: new Array(3),
 
 	init: function(model) {
 		this.model = model;
 	},
 
 	vertex: function(i_face, n_vert) {
+		var gl_Vertex = this.model.get_vert(i_face, n_vert);
+
 		this.varying_normal[n_vert] = this.model.get_normal(i_face, n_vert);
 		this.varying_uv[n_vert] = this.model.get_uv(i_face, n_vert);
-
-		var gl_Vertex = this.model.get_vert(i_face, n_vert);
+		this.varying_pos[n_vert] = new Vector3(gl_Vertex.x, gl_Vertex.y, gl_Vertex.z);
+		
 		var transformed = mat4vec(viewport, mat4vec(projection, mat4vec(modelview, gl_Vertex)));
 
 		transformed.x /= transformed.w; transformed.y /= transformed.w; transformed.z /= transformed.w;
@@ -89,35 +92,67 @@ var shader = {
 		return transformed;
 	},
 
-	fragment: function(bar) {
+	fragment: function(bar) {		
+		// sample textures
+		var diff_color = sample_texture(texture_data, this.varying_uv, bar);
 		var nm_color = sample_texture(normal_data, this.varying_uv, bar);
-		var nm = new Vector3((nm_color.r/255)*2-1, (nm_color.g/255)*2-1, (nm_color.b/255)*2-1);
+		var spec_color = sample_texture(specular_data, this.varying_uv, bar);		
 
+		// interpolated normal
 		var n_ = [new Vector3(this.varying_normal[0].x, this.varying_normal[1].x, this.varying_normal[2].x),
 				new Vector3(this.varying_normal[0].y, this.varying_normal[1].y, this.varying_normal[2].y),
 				new Vector3(this.varying_normal[0].z, this.varying_normal[1].z, this.varying_normal[2].z)]
 		var n = new Vector3(n_[0].dot(bar),
 							n_[1].dot(bar),
 							n_[2].dot(bar));
+		n.normalize();
+
+		// normal map in tangent space
+		var nm = new Vector3((nm_color.r/255)*2-1, (nm_color.g/255)*2-1, (nm_color.b/255)*2-1);
+
+		// tangent and bitangent
+		var dP1 = this.varying_pos[1].subtract(this.varying_pos[0]);
+		var dP2 = this.varying_pos[2].subtract(this.varying_pos[0]);
+		var dUV1 = this.varying_uv[1].subtract(this.varying_uv[0]);
+		var dUV2 = this.varying_uv[2].subtract(this.varying_uv[0]);
+
+		var r = dUV1.x*dUV2.y - dUV1.y*dUV2.x;
+		var tangent = new Vector3((dP1.x*dUV2.y - dP2.x*dUV1.y)/r, 
+								(dP1.y*dUV2.y - dP2.y*dUV1.y)/r,
+								(dP1.z*dUV2.y - dP2.z*dUV1.y)/r);
+		var bitangent = new Vector3((dP2.x*dUV1.x - dP1.x*dUV2.x)/r, 
+								(dP2.y*dUV1.x - dP1.y*dUV2.x)/r,
+								(dP2.z*dUV1.x - dP1.z*dUV2.x)/r);
+
+		// transform from tangent to model space
+		var t2m = new Mat3x3([tangent.x, bitangent.x, n.x], 
+							[tangent.y, bitangent.y, n.y], 
+							[tangent.z, bitangent.z, n.z]);
+		nm = mat3vec(t2m, nm);
+		nm.normalize();
+
+		// add normal map perturbation to normal
 		n.add(nm);
 		n.normalize();
 
+		// technically the light_dir should be transformed to model space
+		// but since the model isnt being transformed we dont bother
+
+		// phong
 		var intensity = n.dot(light_dir);
 		var reflected_light = new Vector3(n.x*2*intensity, n.y*2*intensity, n.z*2*intensity);
-		reflected_light.add(new Vector3(-light_dir.x, -light_dir.y, -light_dir.z));
-
-		var spec_color = sample_texture(specular_data, this.varying_uv, bar);
-		var diff_color = sample_texture(texture_data, this.varying_uv, bar);
+		reflected_light = reflected_light.subtract(light_dir);
 
 		var diff = Math.max(0, intensity);
 		var spec = Math.pow(Math.max(0, reflected_light.z), spec_color.r);		
 		
-		diff_color.r = Math.min(5 + diff_color.r*(diff + 0.6*spec), 255);
-		diff_color.g = Math.min(5 + diff_color.g*(diff + 0.6*spec), 255);
-		diff_color.b = Math.min(5 + diff_color.b*(diff + 0.6*spec), 255);		
+		diff_color.r = Math.min(0 + diff_color.r*(diff + 0.0*spec), 255);
+		diff_color.g = Math.min(0 + diff_color.g*(diff + 0.0*spec), 255);
+		diff_color.b = Math.min(0 + diff_color.b*(diff + 0.0*spec), 255);		
 
 		return {
 			color: diff_color,
+			//color: new Color(bitangent.x*255, bitangent.y*255, bitangent.z*255),
 			discard: false
 		};
 	}

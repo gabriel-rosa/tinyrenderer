@@ -36,6 +36,10 @@ Vector3.prototype.add = function(v) {
 	this.z += v.z;
 };
 
+Vector3.prototype.subtract = function(v) {
+	return new Vector3(this.x-v.x, this.y-v.y, this.z-v.z);
+};
+
 var Vector4 = function(x, y, z, w) {
 	this.x = x;
 	this.y = y;
