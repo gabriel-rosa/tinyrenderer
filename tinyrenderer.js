@@ -4,7 +4,7 @@ var camera, vp, light;
 var light_dir;
 var viewport, projection, modelview;
 var bypass_zbuffer;
-var draw_texture, draw_zbuffer;
+var draw_texture, draw_zbuffer, draw_ssao, mix_ssao;
 
 /* Initialization */
 
@@ -18,9 +18,13 @@ canvas.height = 800;
 bypass_zbuffer = false;
 draw_texture = false;
 draw_zbuffer = false;
+draw_ssao = true;
+mix_ssao = false;
+
+var ssao_inds = [[-0.707,-0.707], [0,-1], [0.707,-0.707], [-1,0], [1,0], [-0.707,0.707], [0,1], [0.707,0.707]];
 
 camera = {
-	eye: new Vector3(1, 1, 3),
+	eye: new Vector3(1, -1, 3),
 	center: new Vector3(0, 0, 0),
 	up: new Vector3(0, 1, 0)
 };
@@ -249,8 +253,55 @@ function render_model(model, shader) {
 		triangle(screen_coords, shader);
 	}	
 
+	
 	if (draw_zbuffer) {
-		render_zbuffer();
+		render_zbuffer();		
+		ctx.putImageData(image_data, 0, 0);
+	} else if (draw_ssao) {
+		for (var x=0; x<canvas.width; ++x) {
+			for (var y=0; y<canvas.height; ++y) {
+				var z = zbuffer_data[x + y*canvas.width];
+
+				if (z <= 0)
+					continue;
+
+				var total_slope = 0;
+				for (var i=0; i<ssao_inds.length; ++i) {
+					var max_slope = 0;
+
+					for (var j=0; j<30; j+=2) {
+						var x_ = Math.round(ssao_inds[i][0]*j);
+						var y_ = Math.round(ssao_inds[i][1]*j);
+
+						if (!((x+x_) > 0 && (y+y_) > 0 && (x+x_) < canvas.width && (y+y_) < canvas.height)) break;
+
+						var z_ = zbuffer_data[(x+x_) + (y+y_)*canvas.width];
+						if (z_ <= 0)
+							continue;
+
+						var slope = (z_ - z)/Math.sqrt(x_*x_+y_*y_);
+						if (slope > max_slope)
+							max_slope = slope;
+					}
+
+					total_slope += 255 - Math.min(255*(max_slope/2), 255);
+				}
+
+				total_slope /= 8;
+
+				var new_color = new Color(total_slope, total_slope, total_slope);
+
+				if (mix_ssao) {
+					var current_color = sample_texture_coord(image_data, new Vector2(x, y));
+					new_color = new Color(total_slope/255 * current_color.r,
+										total_slope/255 * current_color.g,
+										total_slope/255 * current_color.b);
+				}
+
+				put_pixel(new Vector2(x, y), new_color);
+			}
+		}
+
 		ctx.putImageData(image_data, 0, 0);
 	} else {
 		ctx.putImageData(image_data, 0, 0);
