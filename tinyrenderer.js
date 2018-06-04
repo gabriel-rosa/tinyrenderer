@@ -19,12 +19,12 @@ bypass_zbuffer = false;
 draw_texture = false;
 draw_zbuffer = false;
 draw_ssao = true;
-mix_ssao = false;
+mix_ssao = true;
 
 var ssao_inds = [[-0.707,-0.707], [0,-1], [0.707,-0.707], [-1,0], [1,0], [-0.707,0.707], [0,1], [0.707,0.707]];
 
 camera = {
-	eye: new Vector3(1, -1, 3),
+	eye: new Vector3(1, 1, 3),
 	center: new Vector3(0, 0, 0),
 	up: new Vector3(0, 1, 0)
 };
