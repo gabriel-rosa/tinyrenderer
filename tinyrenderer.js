@@ -1,6 +1,6 @@
 var canvas, ctx; 
-var image_data, zbuffer_data, texture_data, normal_data, specular_data;
-var camera, vp;
+var image_data, zbuffer_data, texture_data, normal_data, specular_data, shadow_data;
+var camera, vp, light;
 var light_dir;
 var viewport, projection, modelview;
 var bypass_zbuffer;
@@ -33,7 +33,7 @@ vp = {
 	d: 255
 };
 
-light_dir = new Vector3(1, 1, 1);
+light_dir = new Vector3(1, 1, 0.5);
 light_dir.normalize();
 
 /* Render functions */
@@ -66,16 +66,73 @@ function world_to_screen(modelview, viewport, projection, vertices) {
 	return out_vertices;
 }
 
-var shader = {
+var shadow_shader = {
 
 	model: undefined,
+	M: undefined,
+
+	varying_z: new Array(3),
+
+	init: function(model) {
+		this.model = model;
+		this.M = new Mat4x4;
+		this.M.mult(viewport);
+		this.M.mult(projection);
+		this.M.mult(modelview);
+	},
+
+	vertex: function(i_face, n_vert) {
+		var gl_Vertex = this.model.get_vert(i_face, n_vert);		
+		
+		var transformed = mat4vec(this.M, gl_Vertex);
+
+		transformed.x /= transformed.w; transformed.y /= transformed.w; transformed.z /= transformed.w;
+		transformed.x = Math.round(transformed.x); transformed.y = Math.round(transformed.y);
+
+		this.varying_z[n_vert] = transformed.z;
+
+		return transformed;
+	},
+
+	fragment: function(bar) {		
+
+		var z_ = new Vector3(this.varying_z[0], this.varying_z[1], this.varying_z[2]);
+		var z = z_.dot(bar);
+
+		return {
+			color: new Color(255*z/vp.d, 255*z/vp.d, 255*z/vp.d),
+			discard: false
+		};
+	}
+
+};
+
+var default_shader = {
+
+	model: undefined,
+	M: undefined,
+	M_inv: undefined,
+	shadow_M: undefined,
 
 	varying_normal: new Array(3),
 	varying_uv: new Array(3),
 	varying_pos: new Array(3),
+	varying_transformed: new Array(3),
 
 	init: function(model) {
 		this.model = model;
+
+		this.M = new Mat4x4;
+		this.M.mult(viewport);
+		this.M.mult(projection);
+		this.M.mult(modelview);
+
+		this.M_inv = new Mat4x4;
+		this.M_inv = mat4inv(this.M);
+
+		this.shadow_M = new Mat4x4;
+		this.shadow_M.mult(shadow_shader.M);
+		this.shadow_M.mult(this.M_inv);
 	},
 
 	vertex: function(i_face, n_vert) {
@@ -85,10 +142,12 @@ var shader = {
 		this.varying_uv[n_vert] = this.model.get_uv(i_face, n_vert);
 		this.varying_pos[n_vert] = new Vector3(gl_Vertex.x, gl_Vertex.y, gl_Vertex.z);
 		
-		var transformed = mat4vec(viewport, mat4vec(projection, mat4vec(modelview, gl_Vertex)));
-
+		var transformed = mat4vec(this.M, gl_Vertex);
 		transformed.x /= transformed.w; transformed.y /= transformed.w; transformed.z /= transformed.w;
 		transformed.x = Math.round(transformed.x); transformed.y = Math.round(transformed.y);
+
+		this.varying_transformed[n_vert] = new Vector3(transformed.x, transformed.y, transformed.z);
+
 		return transformed;
 	},
 
@@ -96,12 +155,12 @@ var shader = {
 		// sample textures
 		var diff_color = sample_texture(texture_data, this.varying_uv, bar);
 		var nm_color = sample_texture(normal_data, this.varying_uv, bar);
-		var spec_color = sample_texture(specular_data, this.varying_uv, bar);		
+		var spec_color = sample_texture(specular_data, this.varying_uv, bar);
 
 		// interpolated normal
 		var n_ = [new Vector3(this.varying_normal[0].x, this.varying_normal[1].x, this.varying_normal[2].x),
 				new Vector3(this.varying_normal[0].y, this.varying_normal[1].y, this.varying_normal[2].y),
-				new Vector3(this.varying_normal[0].z, this.varying_normal[1].z, this.varying_normal[2].z)]
+				new Vector3(this.varying_normal[0].z, this.varying_normal[1].z, this.varying_normal[2].z)];
 		var n = new Vector3(n_[0].dot(bar),
 							n_[1].dot(bar),
 							n_[2].dot(bar));
@@ -135,6 +194,19 @@ var shader = {
 		n.add(nm);
 		n.normalize();
 
+		// shadow
+		var interp_pos_ = [new Vector3(this.varying_transformed[0].x, this.varying_transformed[1].x, this.varying_transformed[2].x),
+						new Vector3(this.varying_transformed[0].y, this.varying_transformed[1].y, this.varying_transformed[2].y),
+						new Vector3(this.varying_transformed[0].z, this.varying_transformed[1].z, this.varying_transformed[2].z)];
+		var interp_pos = new Vector4(interp_pos_[0].dot(bar),
+									interp_pos_[1].dot(bar),
+									interp_pos_[2].dot(bar),
+									1);
+		var shadow_pos = mat4vec(this.shadow_M, interp_pos);
+		shadow_pos.x /= shadow_pos.w; shadow_pos.y /= shadow_pos.w; shadow_pos.z /= shadow_pos.w;
+
+		var shadow_color = sample_texture_coord(shadow_data, shadow_pos);
+
 		// technically the light_dir should be transformed to model space
 		// but since the model isnt being transformed we dont bother
 
@@ -146,13 +218,14 @@ var shader = {
 		var diff = Math.max(0, intensity);
 		var spec = Math.pow(Math.max(0, reflected_light.z), spec_color.r);		
 		
-		diff_color.r = Math.min(0 + diff_color.r*(diff + 0.0*spec), 255);
-		diff_color.g = Math.min(0 + diff_color.g*(diff + 0.0*spec), 255);
-		diff_color.b = Math.min(0 + diff_color.b*(diff + 0.0*spec), 255);		
+
+		var shadow = 0.3 + 0.7*(shadow_color.r-shadow_pos.z < 2)
+		diff_color.r = Math.min(5 + shadow*diff_color.r*(diff + 0.3*spec), 255);
+		diff_color.g = Math.min(5 + shadow*diff_color.g*(diff + 0.3*spec), 255);
+		diff_color.b = Math.min(5 + shadow*diff_color.b*(diff + 0.3*spec), 255);
 
 		return {
 			color: diff_color,
-			//color: new Color(bitangent.x*255, bitangent.y*255, bitangent.z*255),
 			discard: false
 		};
 	}
@@ -216,5 +289,20 @@ texture_image.open("images/african_head_diffuse.tga", function(data) {
 });
 
 function mesh_onload(data) {
-	render_model(test_model, shader);
+	/* change camera to light */
+	var default_camera = {
+		eye: camera.eye.copy(),
+		center: camera.center.copy(),
+		up: camera.up.copy()
+	};
+
+	camera.eye = new Vector3(10*light_dir.x, 10*light_dir.y, 10*light_dir.z);
+
+	render_model(test_model, shadow_shader);
+
+	shadow_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+	/* change camera back */
+	camera = default_camera;
+	render_model(test_model, default_shader);
 }

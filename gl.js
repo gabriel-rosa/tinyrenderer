@@ -115,6 +115,23 @@ function sample_texture(data, uv_coords, barycentric_coords) {
 	return new Color(r, g, b);
 }
 
+function sample_texture_coord(data, uv_coords) {
+	var uv = new Vector2(0, 0);
+
+	uv.x = Math.floor(uv_coords.x);
+	uv.y = Math.floor(uv_coords.y);
+	
+	if (!(uv.x > 0 && uv.y > 0 && uv.x < data.width && uv.y < data.height))
+		return new Color(0, 0, 0);
+		
+	var index = 4*(uv.x + (data.height-uv.y)*data.width);
+	var r = data.data[index+0];
+	var g = data.data[index+1];
+	var b = data.data[index+2];
+	
+	return new Color(r, g, b);
+}
+
 function render_triangle(vertices, uv_coords, color) {
 	var bbox = bbox_triangle(vertices);
 

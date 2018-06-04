@@ -215,14 +215,12 @@ function mat4vec(M, v) {
 }
 
 function mat4det(M) {
-	var determinant = M.data[0]*M.data[5]*M.data[10]*M.data[15];
-	determinant += M.data[3]*M.data[4]*M.data[9]*M.data[14];
-	determinant += M.data[2]*M.data[7]*M.data[8]*M.data[13];
-	determinant += M.data[1]*M.data[6]*M.data[11]*M.data[12];
-	determinant -= M.data[3]*M.data[6]*M.data[9]*M.data[12];
-	determinant -= M.data[0]*M.data[7]*M.data[10]*M.data[13];
-	determinant -= M.data[1]*M.data[4]*M.data[11]*M.data[14];
-	determinant -= M.data[2]*M.data[5]*M.data[8]*M.data[15];
+	var m = M.data;
+
+	var determinant = m[0]*mat3det(new Mat3x3([m[5], m[6], m[7]], [m[9], m[10], m[11]], [m[13], m[14], m[15]]));
+	determinant -= m[1]*mat3det(new Mat3x3([m[4], m[6], m[7]], [m[8], m[10], m[11]], [m[12], m[14], m[15]]));
+	determinant += m[2]*mat3det(new Mat3x3([m[4], m[5], m[7]], [m[8], m[9], m[11]], [m[12], m[13], m[15]]));
+	determinant -= m[3]*mat3det(new Mat3x3([m[4], m[5], m[6]], [m[8], m[9], m[10]], [m[12], m[13], m[14]]));
 	return determinant;
 }
 
@@ -233,23 +231,23 @@ function mat4inv(M) {
 	var m = M.data;
 
 	inv.data[0] = mat3det(new Mat3x3([m[5], m[9], m[13]], [m[6], m[10], m[14]], [m[7], m[11], m[15]])) / det;
-	inv.data[1] = mat3det(new Mat3x3([m[1], m[9], m[13]], [m[2], m[10], m[14]], [m[3], m[11], m[15]])) / det;
+	inv.data[1] = -mat3det(new Mat3x3([m[1], m[9], m[13]], [m[2], m[10], m[14]], [m[3], m[11], m[15]])) / det;
 	inv.data[2] = mat3det(new Mat3x3([m[1], m[5], m[13]], [m[2], m[6], m[14]],  [m[3], m[7], m[15]]))  / det;
-	inv.data[3] = mat3det(new Mat3x3([m[1], m[5], m[9]],  [m[2], m[6], m[10]],  [m[3], m[7], m[11]]))  / det;
+	inv.data[3] = -mat3det(new Mat3x3([m[1], m[5], m[9]],  [m[2], m[6], m[10]],  [m[3], m[7], m[11]]))  / det;
 
-	inv.data[4] = mat3det(new Mat3x3([m[4], m[8], m[12]], [m[6], m[10], m[14]], [m[7], m[11], m[15]])) / det;
+	inv.data[4] = -mat3det(new Mat3x3([m[4], m[8], m[12]], [m[6], m[10], m[14]], [m[7], m[11], m[15]])) / det;
 	inv.data[5] = mat3det(new Mat3x3([m[0], m[8], m[12]], [m[2], m[10], m[14]], [m[3], m[11], m[15]])) / det;
-	inv.data[6] = mat3det(new Mat3x3([m[0], m[4], m[12]], [m[2], m[6], m[14]],  [m[3], m[7], m[15]]))  / det;
+	inv.data[6] = -mat3det(new Mat3x3([m[0], m[4], m[12]], [m[2], m[6], m[14]],  [m[3], m[7], m[15]]))  / det;
 	inv.data[7] = mat3det(new Mat3x3([m[0], m[4], m[8]],  [m[2], m[6], m[10]],  [m[3], m[7], m[11]]))  / det;
 	
 	inv.data[8] = mat3det(new Mat3x3([m[4], m[8], m[12]], [m[5], m[9], m[13]], [m[7], m[11], m[15]])) / det;
-	inv.data[9] = mat3det(new Mat3x3([m[0], m[8], m[12]], [m[1], m[9], m[13]], [m[3], m[11], m[15]])) / det;
+	inv.data[9] = -mat3det(new Mat3x3([m[0], m[8], m[12]], [m[1], m[9], m[13]], [m[3], m[11], m[15]])) / det;
 	inv.data[10] = mat3det(new Mat3x3([m[0], m[4], m[12]], [m[1], m[5], m[13]], [m[3], m[7], m[15]])) / det;
-	inv.data[11] = mat3det(new Mat3x3([m[0], m[4], m[8]],  [m[1], m[5], m[9]],  [m[3], m[7], m[11]])) / det;
+	inv.data[11] = -mat3det(new Mat3x3([m[0], m[4], m[8]],  [m[1], m[5], m[9]],  [m[3], m[7], m[11]])) / det;
 
-	inv.data[12] = mat3det(new Mat3x3([m[4], m[8], m[12]], [m[5], m[9], m[13]], [m[6], m[10], m[14]])) / det;
+	inv.data[12] = -mat3det(new Mat3x3([m[4], m[8], m[12]], [m[5], m[9], m[13]], [m[6], m[10], m[14]])) / det;
 	inv.data[13] = mat3det(new Mat3x3([m[0], m[8], m[12]], [m[1], m[9], m[13]], [m[2], m[10], m[14]])) / det;
-	inv.data[14] = mat3det(new Mat3x3([m[0], m[4], m[12]], [m[1], m[5], m[13]], [m[2], m[6], m[14]]))  / det;
+	inv.data[14] = -mat3det(new Mat3x3([m[0], m[4], m[12]], [m[1], m[5], m[13]], [m[2], m[6], m[14]]))  / det;
 	inv.data[15] = mat3det(new Mat3x3([m[0], m[4], m[8]],  [m[1], m[5], m[9]],  [m[2], m[6], m[10]]))  / det;
 
 	return inv;
